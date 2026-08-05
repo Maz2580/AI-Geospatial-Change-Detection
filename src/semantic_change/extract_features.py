@@ -15,8 +15,8 @@ def main():
         return
 
     # You can swap this to the 2021 map to generate pools_2021.geojson
-    image_path = "EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_VertJPEG-0000/EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_Vert.tif"
-    output_geojson = "output/pools_2026.geojson"
+    image_path = "../../data/input/EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_VertJPEG-0000/EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_Vert.tif"
+    output_geojson = "../../data/output/pools_2026.geojson"
     
     # For this script to function flawlessly on swimming pools, you can load a specialized YOLO weight.
     # For now, we load the standard YOLOv8n (which detects generic objects like cars, people, boats) 

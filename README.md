@@ -1,48 +1,75 @@
-# Nearmap Change Detection Pipeline
+# AI Geospatial Change Detection
 
-This repository contains a Python-based change detection pipeline designed specifically for analyzing massive, high-resolution aerial imagery (such as Nearmap data). 
+This repository contains an end-to-end suite of Python pipelines for detecting changes in ultra-high-resolution aerial imagery (GeoTIFFs). It replaces premium subscriptions (like Nearmap AI) with state-of-the-art open-source models that you can run locally on your own data.
 
-It leverages **CFNet**, a state-of-the-art content-aware deep learning architecture for remote sensing change detection, and seamlessly processes extremely large GeoTIFF images by tiling them, performing inference, and reconstructing the output seamlessly.
+## Repository Structure
 
-## 🚀 Features
-- **Large-Scale Tiling Engine**: Automatically slices massive ~5000x8000+ `.tif` imagery into 512x512 patches suitable for deep learning.
-- **Deep Learning Backbone**: Uses an EfficientNet-B5 based `CFNet` for robust detection of infrastructure changes, mitigating style variations caused by lighting and weather.
-- **GeoTIFF Generation**: Automatically reassembles the predictions and outputs a perfectly aligned binary change mask as a new `.tif` file.
-- **Automated Pre-processing**: Provides utility scripts (`convert.py`) to convert `.jpg` and `.jgw` world files directly into georeferenced TIF datasets.
+The project is organized into a modular pipeline:
 
-## 🛠️ Components
-- `cfnet_inference.py`: The core AI inference pipeline that slices the two temporal GeoTIFFs, runs the deep learning model, and stitches the output back together.
-- `calculate_change.py`: A baseline algorithmic script that calculates absolute difference thresholds (useful for rapid sanity-checking without deep learning).
-- `convert.py`: A utility script for transforming JPGs into TIF format utilizing corresponding JGW world files.
-- `CFNet/`: A submodule containing the model definition and architecture.
-
-## 📦 Setup Instructions
-
-1. **Clone the repo with submodules**:
-```bash
-git clone --recursive https://github.com/Maz2580/change_detection.git
+```text
+change_detection/
+├── src/                                  # AI Pipelines
+│   ├── pixel_change/                     # Finds "WHERE" a change occurred
+│   │   ├── cfnet_inference.py            # Supervised CNN detection
+│   │   └── dinov2_inference.py           # Zero-shot Vision Transformer detection
+│   │
+│   ├── semantic_change/                  # Finds "WHAT" changed (e.g. Pools/Buildings)
+│   │   ├── extract_features.py           # YOLO/HF Object footprint extraction
+│   │   └── detect_semantic_changes.py    # Spatial subtraction of features
+│   │
+│   ├── vectorization/                    # Pixel-to-Polygon refinement
+│   │   └── sam_vectorize_changes.py      # SAM-based perfect footprint generator
+│   │
+│   └── utils/                            # Legacy & Helper scripts
+│       ├── convert.py                    
+│       └── run_change_detection.py       
+│
+├── data/                                 # Data storage (Ignored by Git)
+│   ├── input/                            # Raw TIFs and Zips
+│   ├── weights/                          # AI Model Weights
+│   └── output/                           # Generated TIFs and GeoJSONs
 ```
 
-2. **Setup your Environment**:
-Ensure you have Python installed, then install the PyTorch CPU version (or GPU if available) and the required scientific packages:
-```bash
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-pip install timm einops scipy rasterio tqdm numpy
-```
+## Setup & Installation
 
-3. **Download Model Weights**:
-Download the pre-trained `clcd.pth` weights and place them in the root directory as `cfnet_weights.pth`.
-```python
-import urllib.request
-urllib.request.urlretrieve('https://huggingface.co/wifibk/CFNet/resolve/main/clcd.pth', 'cfnet_weights.pth')
-```
+1. Create a Python virtual environment: `python -m venv venv`
+2. Activate the environment: `venv\Scripts\activate`
+3. Install PyTorch for CPU:
+   `pip install torch torchvision torchaudio`
+4. Install geospatial requirements:
+   `pip install rasterio geopandas shapely tqdm python-dotenv`
+5. Install AI requirements:
+   `pip install transformers huggingface_hub ultralytics segment-geospatial`
+6. Add your HuggingFace Token to a `.env` file in the root folder:
+   `HF_TOKEN=your_token_here`
 
-## 🗺️ Usage
-Execute the CFNet change detection inference script:
-```bash
-python cfnet_inference.py
-```
-This will read the two temporal GeoTIFF files specified in the script and output the AI's binary change map into the `output/` folder.
+## Pipeline 1: Pixel-Based Change Detection
 
-## 📋 License
-This codebase is a bespoke pipeline leveraging the open-source research from CFNet (Optimizing Remote Sensing Change Detection through Content-Aware Enhancement).
+These scripts compare two raw GeoTIFFs (2021 vs 2026) and generate a black-and-white "Change Mask" showing exactly where pixels have changed.
+
+- **CFNet**: Run `python src/pixel_change/cfnet_inference.py` for highly accurate, supervised change detection.
+- **DINOv2**: Run `python src/pixel_change/dinov2_inference.py` for zero-shot semantic change detection based on Meta's foundation models.
+
+*Output: `data/output/cfnet_change_map.tif`*
+
+## Pipeline 2: Semantic Change Detection (Object level)
+
+If you only want to know about specific newly built objects (e.g., "Show me all the swimming pools built between 2021 and 2026"):
+
+1. Update `extract_features.py` to point to your 2021 map, and run it:
+   `python src/semantic_change/extract_features.py` (Outputs `pools_2021.geojson`)
+2. Update `extract_features.py` to point to your 2026 map, and run it:
+   `python src/semantic_change/extract_features.py` (Outputs `pools_2026.geojson`)
+3. Run the spatial difference script:
+   `python src/semantic_change/detect_semantic_changes.py`
+
+*Output: `data/output/new_constructions.geojson`*
+
+## Pipeline 3: AI Vectorization (SAM)
+
+If you have a rough change mask from Pipeline 1, you can use Meta's Segment Anything Model (SAM) to draw perfect vector polygons around the changed objects automatically.
+
+1. Ensure Pipeline 1 has successfully output a `change_map.tif`.
+2. Run `python src/vectorization/sam_vectorize_changes.py`
+
+*Output: `data/output/sam_change_polygons.geojson`*

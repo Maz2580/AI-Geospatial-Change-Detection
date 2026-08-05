@@ -53,11 +53,11 @@ def detect_semantic_change(old_geojson, new_geojson, new_output, demo_output):
 
 if __name__ == "__main__":
     # In a real workflow, you'd run extract_features.py twice to generate these inputs:
-    old_file = "output/pools_2021.geojson"
-    new_file = "output/pools_2026.geojson"
+    old_file = "../../data/output/pools_2021.geojson"
+    new_file = "../../data/output/pools_2026.geojson"
     
-    new_out = "output/new_constructions.geojson"
-    demo_out = "output/demolished_constructions.geojson"
+    new_out = "../../data/output/new_constructions.geojson"
+    demo_out = "../../data/output/demolished_constructions.geojson"
     
     # To prevent errors if the user hasn't run the extract scripts yet:
     if not os.path.exists(old_file) or not os.path.exists(new_file):

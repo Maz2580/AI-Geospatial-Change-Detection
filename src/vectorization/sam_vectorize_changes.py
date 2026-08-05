@@ -42,9 +42,9 @@ def extract_blob_centroids(mask_path, min_pixels=50):
     return points_geo, crs
 
 def main():
-    change_map_path = "output/cfnet_change_map.tif"
-    image_2026_path = "EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_VertJPEG-0000/EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_Vert.tif"
-    output_vector = "output/sam_change_polygons.geojson"
+    change_map_path = "../../data/output/cfnet_change_map.tif"
+    image_2026_path = "../../data/input/EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_VertJPEG-0000/EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_Vert.tif"
+    output_vector = "../../data/output/sam_change_polygons.geojson"
     
     if not os.path.exists(change_map_path):
         print(f"Error: Could not find {change_map_path}. Wait for CFNet to finish first!")

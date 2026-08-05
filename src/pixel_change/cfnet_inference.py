@@ -12,14 +12,14 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'CFNet'))
 from model.CFNet import CFNet
 
 def main():
-    t1_path = "EPSG7855_Date20211201_Lat-36.336606_Lon145.406921_Mpp0.075_VertJPEG-0000/EPSG7855_Date20211201_Lat-36.336606_Lon145.406921_Mpp0.075_Vert.tif"
-    t2_path = "EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_VertJPEG-0000/EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_Vert.tif"
-    out_path = "output/cfnet_change_map.tif"
-    checkpoint_path = "cfnet_weights.pth" # We will download this next
+    t1_path = "../../data/input/EPSG7855_Date20211201_Lat-36.336606_Lon145.406921_Mpp0.075_VertJPEG-0000/EPSG7855_Date20211201_Lat-36.336606_Lon145.406921_Mpp0.075_Vert.tif"
+    t2_path = "../../data/input/EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_VertJPEG-0000/EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_Vert.tif"
+    out_path = "../../data/output/cfnet_change_map.tif"
+    checkpoint_path = "../../data/weights/cfnet_weights.pth" # We will download this next
     patch_size = 512
     device = torch.device("cpu") # User confirmed CPU only
 
-    os.makedirs("output", exist_ok=True)
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
     print("Loading CFNet Model...")
     model = CFNet(3, 3)
