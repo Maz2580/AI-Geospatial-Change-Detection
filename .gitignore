@@ -17,3 +17,6 @@ output/
 # IDEs
 .vscode/
 .idea/
+
+# Local Tracking
+roadmap.md
