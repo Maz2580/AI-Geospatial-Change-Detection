@@ -1,0 +1,17 @@
+# Environments
+venv/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Images and Outputs
+*.tif
+*.jpg
+*.jgw
+output/
+
+# IDEs
+.vscode/
+.idea/
