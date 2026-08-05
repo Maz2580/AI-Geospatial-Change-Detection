@@ -1,0 +1,3 @@
+[submodule "CFNet"]
+	path = CFNet
+	url = https://github.com/wifiBlack/CFNet.git

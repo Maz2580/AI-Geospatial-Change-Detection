@@ -5,6 +5,8 @@ venv/
 # Python
 __pycache__/
 *.py[cod]
+*.pth
+*.zip
 
 # Images and Outputs
 *.tif
