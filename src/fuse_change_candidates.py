@@ -3,10 +3,26 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
+import os
 from pathlib import Path
 
-from building_change.fusion import FusionError, load_candidate_input, write_fusion_outputs
+
+def _prefer_rasterio_projection_data() -> None:
+    """Avoid an incompatible external OSGeo PROJ_LIB in this process only."""
+    spec = importlib.util.find_spec("rasterio")
+    if spec is None or spec.origin is None:
+        return
+    bundled_data = Path(spec.origin).parent / "proj_data"
+    if bundled_data.is_dir():
+        os.environ["PROJ_DATA"] = str(bundled_data)
+        os.environ.pop("PROJ_LIB", None)
+
+
+_prefer_rasterio_projection_data()
+
+from building_change.fusion import FusionError, load_candidate_input, write_fusion_outputs  # noqa: E402
 
 
 def main() -> None:
