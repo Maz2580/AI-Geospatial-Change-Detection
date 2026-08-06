@@ -1,0 +1,26 @@
+{
+  "dataset": "murchison_estate_2022_2026",
+  "source_review": "data/output/murchison_estate_2022_2026_fused_review/segformer_footprint_comparison_review/review/index.html",
+  "labels": [
+    {
+      "review_candidate_id": 7,
+      "human_assessment": "not_a_building",
+      "notes": "Do not promote this footprint candidate to a building."
+    },
+    {
+      "review_candidate_id": 11,
+      "human_assessment": "new_driveway",
+      "notes": "Real hardscape change, incorrectly labelled as a new building."
+    },
+    {
+      "review_candidate_id": 13,
+      "human_assessment": "not_a_building",
+      "notes": "Model agreement is not sufficient to classify this as a building."
+    },
+    {
+      "review_candidate_id": 14,
+      "human_assessment": "partial_site_change",
+      "notes": "The detected change does not represent the nearby new pool, garden, and building."
+    }
+  ]
+}
