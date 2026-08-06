@@ -1,0 +1,112 @@
+{
+  "dataset": "murchison_estate_2022_2026",
+  "source_review": "data/output/murchison_estate_2022_2026_fused_review/construction_sites_tight_review/review/index.html",
+  "labels": [
+    {
+      "review_candidate_id": 1,
+      "assessment": "partially_correct",
+      "buildings": {"detected": 3, "total": null, "notes": "Three large buildings detected; smaller buildings missed."},
+      "outline_quality": "imperfect",
+      "issues": ["missed_small_buildings"]
+    },
+    {
+      "review_candidate_id": 2,
+      "assessment": "partially_correct",
+      "buildings": {"detected": 2, "total": 4},
+      "outline_quality": "imperfect",
+      "issues": ["soil_change_misidentified_as_construction"]
+    },
+    {
+      "review_candidate_id": 3,
+      "assessment": "partially_correct",
+      "buildings": {"detected": 2, "total": 3, "notes": "Two buildings represented by one box."},
+      "outline_quality": "poor",
+      "issues": ["merged_building_outlines"]
+    },
+    {
+      "review_candidate_id": 4,
+      "assessment": "partially_correct",
+      "buildings": {"detected": 1, "total": 3},
+      "outline_quality": "poor",
+      "issues": ["missed_buildings"]
+    },
+    {
+      "review_candidate_id": 5,
+      "assessment": "partially_correct",
+      "buildings": {"detected": 2, "total": 4},
+      "outline_quality": "poor",
+      "issues": ["shadow_false_positive", "missed_buildings"]
+    },
+    {
+      "review_candidate_id": 6,
+      "assessment": "incorrect",
+      "buildings": {"detected": 0, "total": null, "notes": "No construction has started."},
+      "outline_quality": "not_applicable",
+      "issues": ["fence_false_positive", "no_construction"]
+    },
+    {
+      "review_candidate_id": 7,
+      "assessment": "partially_correct",
+      "buildings": {"detected": 1, "total": 2},
+      "pool": "missed",
+      "garden": "missed",
+      "outline_quality": "poor",
+      "issues": ["missed_pool", "missed_garden"]
+    },
+    {
+      "review_candidate_id": 8,
+      "assessment": "hardscape_change_detected",
+      "buildings": {"detected": 0, "total": 0},
+      "hardscape": "driveway_and_footpath_replaced_a_shadow",
+      "outline_quality": "imperfect",
+      "issues": ["shadow_confounded_hardscape_change"]
+    },
+    {
+      "review_candidate_id": 9,
+      "assessment": "partially_correct",
+      "buildings": {"detected": 1, "total": null, "notes": "Only a small part of the building is covered."},
+      "outline_quality": "partial",
+      "issues": ["partial_building_outline"]
+    },
+    {
+      "review_candidate_id": 10,
+      "assessment": "partial_site_change",
+      "buildings": {"detected": 0, "total": null, "notes": "All buildings missed."},
+      "pool": "missed",
+      "garden": "partially_detected_in_two_sections",
+      "outline_quality": "poor",
+      "issues": ["missed_buildings", "missed_pool", "fragmented_garden_outline"]
+    },
+    {
+      "review_candidate_id": 11,
+      "assessment": "partially_correct",
+      "buildings": {"detected": 1, "total": 3},
+      "outline_quality": "very_poor",
+      "issues": ["missed_buildings", "poor_building_outline"]
+    },
+    {
+      "review_candidate_id": 12,
+      "assessment": "partial_hardscape_change",
+      "buildings": {"detected": 0, "total": 0},
+      "hardscape": "new_footpath",
+      "outline_quality": "poor",
+      "issues": ["after_image_shadow", "missed_footpath_extent"]
+    },
+    {
+      "review_candidate_id": 13,
+      "assessment": "partial_hardscape_change",
+      "buildings": {"detected": 0, "total": 0},
+      "hardscape": "new_footpath",
+      "outline_quality": "poor",
+      "issues": ["after_image_shadow", "missed_footpath_extent"]
+    },
+    {
+      "review_candidate_id": 14,
+      "assessment": "partial_hardscape_change",
+      "buildings": {"detected": 0, "total": 0},
+      "hardscape": "new_footpath",
+      "outline_quality": "partial",
+      "issues": ["partial_footpath_outline"]
+    }
+  ]
+}
