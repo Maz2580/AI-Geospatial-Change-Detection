@@ -8,9 +8,10 @@ This project detects construction change between two high-resolution aerial-imag
 2. Download matching imagery for the same AOI.
 3. Reproject and register the older image against the newer survey.
 4. Combine colour and edge-change evidence, then vectorise significant regions.
-5. If paired DSMs are available, use height gain to identify likely new buildings and height loss to identify likely demolitions.
+5. Review each candidate in an annotated before/after report.
+6. If paired DSMs are available, use height gain to identify likely new buildings and height loss to identify likely demolitions.
 
-Without elevation data, the result is labelled `likely_building_change`, not a confirmed new building: RGB imagery cannot always tell new construction from demolition, vegetation, or a large surface change.
+Without elevation data, a result is labelled `likely_building_change`, not a confirmed new building: RGB imagery cannot always tell new construction from demolition, vegetation, or a large surface change.
 
 ## Setup
 
@@ -35,7 +36,19 @@ This is the default and works with standard `Vert` imagery access. The downloade
   --output data\output\example_site
 ```
 
-`--before-date` selects the latest survey on or before the date. `--after-date` selects the earliest survey on or after it; omit it to use the latest available survey. Omit `--tile-zoom` to use the survey's native maximum zoom. Zoom 20 is a practical starting point for a 100 m radius because it uses far fewer tile requests while retaining building-scale detail.
+`--before-date` selects the latest survey on or before the date. `--after-date` selects the earliest survey on or after it; omit it to use the latest available survey. Omit `--tile-zoom` to use the survey's native maximum zoom. Zoom 20 is a practical starting point for a 100 m radius because it uses fewer tile requests while retaining building-scale detail.
+
+## Review a completed run
+
+The review report creates a self-contained HTML page plus annotated before/after image chips. Open `review\index.html` in a browser and verify every RGB-only candidate before treating it as a new building.
+
+```powershell
+.\venv\Scripts\python.exe src\generate_change_review.py `
+  --before data\output\example_site\imagery\before_2021-12-01_Vert_tiles.tif `
+  --after data\output\example_site\imagery\after_2026-04-18_Vert_tiles.tif `
+  --candidates data\output\example_site\construction_change_candidates.geojson `
+  --output data\output\example_site
+```
 
 ## Optional Staticmap, True Ortho, and DSM workflow
 
@@ -68,6 +81,7 @@ DSM inputs are optional but must be supplied as a pair.
 - `change_mask.tif` — thresholded candidate regions.
 - `construction_change_candidates.geojson` — all significant changes, with area, score, shape, date, and optional height evidence.
 - `likely_new_buildings.geojson` — height-confirmed building gains, or conservative RGB-only building candidates when DSM is unavailable.
+- `review/index.html` — annotated before/after candidate report for manual QA.
 - `run_report.json` — parameters, registration result, and output paths.
 
 Tune `--change-percentile` (default `98.5`), `--min-area-m2` (default `20`), and `--morphology-m` (default `0.6`) for your imagery and expected building size. A lower percentile detects more changes; a higher value reduces false positives.
