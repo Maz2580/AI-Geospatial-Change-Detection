@@ -11,16 +11,17 @@ import cv2
 import numpy as np
 from rasterio.transform import rowcol
 from rasterio.warp import transform
-from shapely.geometry import shape
+from shapely.geometry import MultiPolygon, Polygon, shape
 
 
 def _candidate_window(feature: dict[str, Any], profile: dict[str, Any], image_shape: tuple[int, int]) -> tuple[int, int, int, int]:
     """Return a padded, clamped pixel window around one WGS84 GeoJSON feature."""
 
     geometry = shape(feature["geometry"])
-    coordinates = list(geometry.exterior.coords)
-    longitudes, latitudes = zip(*coordinates)
-    projected_x, projected_y = transform("EPSG:4326", profile["crs"], longitudes, latitudes)
+    min_x, min_y, max_x, max_y = geometry.bounds
+    projected_x, projected_y = transform(
+        "EPSG:4326", profile["crs"], [min_x, min_x, max_x, max_x], [min_y, max_y, min_y, max_y]
+    )
     rows, columns = rowcol(profile["transform"], projected_x, projected_y)
     height, width = image_shape
     padding = 70
@@ -31,15 +32,23 @@ def _candidate_window(feature: dict[str, Any], profile: dict[str, Any], image_sh
     return left, top, right, bottom
 
 
+def _polygon_outlines(geometry: Any) -> list[list[tuple[float, float]]]:
+    if isinstance(geometry, Polygon):
+        return [list(geometry.exterior.coords)]
+    if isinstance(geometry, MultiPolygon):
+        return [list(polygon.exterior.coords) for polygon in geometry.geoms]
+    raise ValueError("Candidate geometry must be a Polygon or MultiPolygon.")
+
+
 def _draw_outline(image: np.ndarray, feature: dict[str, Any], profile: dict[str, Any], *, left: int, top: int) -> np.ndarray:
     result = np.ascontiguousarray(image.copy())
     geometry = shape(feature["geometry"])
-    coordinates = list(geometry.exterior.coords)
-    longitudes, latitudes = zip(*coordinates)
-    projected_x, projected_y = transform("EPSG:4326", profile["crs"], longitudes, latitudes)
-    rows, columns = rowcol(profile["transform"], projected_x, projected_y)
-    outline = np.array([(column - left, row - top) for row, column in zip(rows, columns)], dtype=np.int32)
-    cv2.polylines(result, [outline], isClosed=True, color=(255, 48, 48), thickness=2)
+    for coordinates in _polygon_outlines(geometry):
+        longitudes, latitudes = zip(*coordinates)
+        projected_x, projected_y = transform("EPSG:4326", profile["crs"], longitudes, latitudes)
+        rows, columns = rowcol(profile["transform"], projected_x, projected_y)
+        outline = np.array([(column - left, row - top) for row, column in zip(rows, columns)], dtype=np.int32)
+        cv2.polylines(result, [outline], isClosed=True, color=(255, 48, 48), thickness=2)
     return result
 
 

@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 
 from .detector import DetectionConfig, run_detection
 from .nearmap import NearmapApiError, NearmapClient, select_surveys
+from .umami import UmamiAnalysisRequest, UmamiApiError, UmamiBoundingBox, UmamiClient, write_analysis_outputs
 
 
 def _add_detection_options(parser: argparse.ArgumentParser) -> None:
@@ -61,6 +62,27 @@ def build_parser() -> argparse.ArgumentParser:
     nearmap.add_argument("--size-px", type=int, default=5000, help="Staticmap image width/height, maximum 5000.")
     nearmap.add_argument("--with-dsm", action="store_true", help="Staticmap only: add DSM height evidence.")
     _add_detection_options(nearmap)
+
+    umami = commands.add_parser(
+        "umami",
+        help="Request optional D-FINE, SegFormer, or Mask R-CNN candidates from an Encroachment API.",
+    )
+    umami.add_argument("--west", required=True, type=float, help="AOI western longitude (WGS84).")
+    umami.add_argument("--south", required=True, type=float, help="AOI southern latitude (WGS84).")
+    umami.add_argument("--east", required=True, type=float, help="AOI eastern longitude (WGS84).")
+    umami.add_argument("--north", required=True, type=float, help="AOI northern latitude (WGS84).")
+    umami.add_argument("--before-date", required=True, help="Earlier capture date in ISO YYYY-MM-DD format.")
+    umami.add_argument("--after-date", required=True, help="Later capture date in ISO YYYY-MM-DD format.")
+    umami.add_argument("--output", required=True, type=Path, help="Directory for remote candidate GeoJSON and report.")
+    umami.add_argument("--detector", choices=("dfine", "segformer", "maskrcnn"), default="dfine")
+    umami.add_argument("--mode", choices=("change", "new_buildings", "object_change", "extract_footprints"), default="change")
+    umami.add_argument("--long-side", type=int, default=768, help="Worker image long side in pixels (default: 768).")
+    umami.add_argument("--percentile", type=float, default=90, help="Worker change percentile (default: 90).")
+    umami.add_argument("--poll-seconds", type=float, default=5, help="Job-status polling interval (default: 5).")
+    umami.add_argument("--timeout-seconds", type=float, default=300, help="Maximum wait time for one job (default: 300).")
+    umami.add_argument("--base-url", help="Override UMAMI_BASE_URL from .env for a compatible API deployment.")
+    umami.add_argument("--no-sam-refine", action="store_true", help="Disable the service's optional SAM boundary refinement.")
+    umami.add_argument("--no-regularize", action="store_true", help="Disable the service's footprint regularisation.")
     return parser
 
 
@@ -120,11 +142,42 @@ def _run_nearmap(args: argparse.Namespace) -> dict:
     return _run_staticmap_nearmap(client, args)
 
 
+def _run_umami(args: argparse.Namespace) -> dict:
+    load_dotenv(Path.cwd() / ".env")
+    request = UmamiAnalysisRequest(
+        bbox=UmamiBoundingBox(args.west, args.south, args.east, args.north),
+        before_date=args.before_date,
+        after_date=args.after_date,
+        detector=args.detector,
+        mode=args.mode,
+        long_side=args.long_side,
+        percentile=args.percentile,
+        sam_refine=not args.no_sam_refine,
+        regularize=not args.no_regularize,
+    )
+    client = UmamiClient(
+        args.base_url or os.getenv("UMAMI_BASE_URL", "https://geollm.idigitaltwin.org/TEST-UMAMI"),
+        os.getenv("UMAMI_USERNAME", ""),
+        os.getenv("UMAMI_PASSWORD", ""),
+        timeout_seconds=min(args.timeout_seconds, 60),
+    )
+    job_id = client.start_analysis(request)
+    completed = client.wait_for_analysis(
+        job_id, poll_seconds=args.poll_seconds, timeout_seconds=args.timeout_seconds,
+    )
+    return write_analysis_outputs(args.output, request, job_id, completed)
+
+
 def main() -> None:
     args = build_parser().parse_args()
     try:
-        report = _run_local(args) if args.command == "local" else _run_nearmap(args)
-    except (NearmapApiError, ValueError, FileNotFoundError) as exc:
+        if args.command == "local":
+            report = _run_local(args)
+        elif args.command == "nearmap":
+            report = _run_nearmap(args)
+        else:
+            report = _run_umami(args)
+    except (NearmapApiError, UmamiApiError, ValueError, FileNotFoundError) as exc:
         raise SystemExit(f"ERROR: {exc}") from exc
     print(json.dumps(report, indent=2))
 
