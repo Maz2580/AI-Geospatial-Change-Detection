@@ -1,75 +1,82 @@
 # AI Geospatial Change Detection
 
-This repository contains an end-to-end suite of Python pipelines for detecting changes in ultra-high-resolution aerial imagery (GeoTIFFs). It replaces premium subscriptions (like Nearmap AI) with state-of-the-art open-source models that you can run locally on your own data.
+This project detects construction change between two high-resolution aerial-image dates. It supports local GeoTIFFs and fixed-date Nearmap imagery.
 
-## Repository Structure
+## Operational workflow
 
-The project is organized into a modular pipeline:
+1. Select an older and newer Nearmap survey for one location.
+2. Download matching imagery for the same AOI.
+3. Reproject and register the older image against the newer survey.
+4. Combine colour and edge-change evidence, then vectorise significant regions.
+5. If paired DSMs are available, use height gain to identify likely new buildings and height loss to identify likely demolitions.
 
-```text
-change_detection/
-├── src/                                  # AI Pipelines
-│   ├── pixel_change/                     # Finds "WHERE" a change occurred
-│   │   ├── cfnet_inference.py            # Supervised CNN detection
-│   │   └── dinov2_inference.py           # Zero-shot Vision Transformer detection
-│   │
-│   ├── semantic_change/                  # Finds "WHAT" changed (e.g. Pools/Buildings)
-│   │   ├── extract_features.py           # YOLO/HF Object footprint extraction
-│   │   └── detect_semantic_changes.py    # Spatial subtraction of features
-│   │
-│   ├── vectorization/                    # Pixel-to-Polygon refinement
-│   │   └── sam_vectorize_changes.py      # SAM-based perfect footprint generator
-│   │
-│   └── utils/                            # Legacy & Helper scripts
-│       ├── convert.py                    
-│       └── run_change_detection.py       
-│
-├── data/                                 # Data storage (Ignored by Git)
-│   ├── input/                            # Raw TIFs and Zips
-│   ├── weights/                          # AI Model Weights
-│   └── output/                           # Generated TIFs and GeoJSONs
+Without elevation data, the result is labelled `likely_building_change`, not a confirmed new building: RGB imagery cannot always tell new construction from demolition, vegetation, or a large surface change.
+
+## Setup
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
+Copy-Item .env.example .env
 ```
 
-## Setup & Installation
+Set `NEARMAP_API_KEY` in `.env`. `HF_TOKEN` remains available for the original DINOv2 and SAM experiments, but the operational baseline does not require a foundation model.
 
-1. Create a Python virtual environment: `python -m venv venv`
-2. Activate the environment: `venv\Scripts\activate`
-3. Install PyTorch for CPU:
-   `pip install torch torchvision torchaudio`
-4. Install geospatial requirements:
-   `pip install rasterio geopandas shapely tqdm python-dotenv`
-5. Install AI requirements:
-   `pip install transformers huggingface_hub ultralytics segment-geospatial`
-6. Add your HuggingFace Token to a `.env` file in the root folder:
-   `HF_TOKEN=your_token_here`
+## Run with standard Nearmap Tile API
 
-## Pipeline 1: Pixel-Based Change Detection
+This is the default and works with standard `Vert` imagery access. The downloader retrieves all tiles for the small AOI from two exact surveys and creates matching Web Mercator GeoTIFF mosaics.
 
-These scripts compare two raw GeoTIFFs (2021 vs 2026) and generate a black-and-white "Change Mask" showing exactly where pixels have changed.
+```powershell
+.\venv\Scripts\python.exe src\run_building_change.py nearmap `
+  --longitude 145.406921 --latitude -36.336606 --radius-m 100 `
+  --before-date 2021-12-01 --after-date 2026-04-18 `
+  --source tiles --tile-zoom 20 `
+  --output data\output\example_site
+```
 
-- **CFNet**: Run `python src/pixel_change/cfnet_inference.py` for highly accurate, supervised change detection.
-- **DINOv2**: Run `python src/pixel_change/dinov2_inference.py` for zero-shot semantic change detection based on Meta's foundation models.
+`--before-date` selects the latest survey on or before the date. `--after-date` selects the earliest survey on or after it; omit it to use the latest available survey. Omit `--tile-zoom` to use the survey's native maximum zoom. Zoom 20 is a practical starting point for a 100 m radius because it uses far fewer tile requests while retaining building-scale detail.
 
-*Output: `data/output/cfnet_change_map.tif`*
+## Optional Staticmap, True Ortho, and DSM workflow
 
-## Pipeline 2: Semantic Change Detection (Object level)
+If your Nearmap subscription enables Staticmap True Ortho and DSM, use the following. True Ortho reduces building lean and DSM height evidence makes construction direction much more reliable.
 
-If you only want to know about specific newly built objects (e.g., "Show me all the swimming pools built between 2021 and 2026"):
+```powershell
+.\venv\Scripts\python.exe src\run_building_change.py nearmap `
+  --longitude 145.406921 --latitude -36.336606 --radius-m 100 `
+  --before-date 2021-12-01 --after-date 2026-04-18 `
+  --source staticmap --content-type TrueOrtho --with-dsm `
+  --output data\output\example_site_dsm
+```
 
-1. Update `extract_features.py` to point to your 2021 map, and run it:
-   `python src/semantic_change/extract_features.py` (Outputs `pools_2021.geojson`)
-2. Update `extract_features.py` to point to your 2026 map, and run it:
-   `python src/semantic_change/extract_features.py` (Outputs `pools_2026.geojson`)
-3. Run the spatial difference script:
-   `python src/semantic_change/detect_semantic_changes.py`
+Staticmap AOIs are limited to 1–100 m radius and 5000 × 5000 pixels.
 
-*Output: `data/output/new_constructions.geojson`*
+## Run with existing GeoTIFFs
 
-## Pipeline 3: AI Vectorization (SAM)
+```powershell
+.\venv\Scripts\python.exe src\run_building_change.py local `
+  --before path\to\older.tif --after path\to\newer.tif `
+  --before-dsm path\to\older_dsm.tif --after-dsm path\to\newer_dsm.tif `
+  --output data\output\my_site
+```
 
-If you have a rough change mask from Pipeline 1, you can use Meta's Segment Anything Model (SAM) to draw perfect vector polygons around the changed objects automatically.
+DSM inputs are optional but must be supplied as a pair.
 
-1. Ensure Pipeline 1 has successfully output a `change_map.tif`.
-2. Run `python src/vectorization/sam_vectorize_changes.py`
+## Outputs
 
-*Output: `data/output/sam_change_polygons.geojson`*
+- `change_score.tif` — continuous 0–1 change evidence.
+- `change_mask.tif` — thresholded candidate regions.
+- `construction_change_candidates.geojson` — all significant changes, with area, score, shape, date, and optional height evidence.
+- `likely_new_buildings.geojson` — height-confirmed building gains, or conservative RGB-only building candidates when DSM is unavailable.
+- `run_report.json` — parameters, registration result, and output paths.
+
+Tune `--change-percentile` (default `98.5`), `--min-area-m2` (default `20`), and `--morphology-m` (default `0.6`) for your imagery and expected building size. A lower percentile detects more changes; a higher value reduces false positives.
+
+## Validation
+
+```powershell
+$env:PYTHONPATH = "src"
+.\venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+The original CFNet, DINOv2, YOLO, and SAM scripts remain under `src/pixel_change`, `src/semantic_change`, and `src/vectorization` as experiments; they are not the main operational workflow.
