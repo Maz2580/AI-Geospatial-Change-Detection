@@ -1,0 +1,34 @@
+{
+  "dataset": "murchison_estate_2022_2026",
+  "before_date": "2022-07-30",
+  "after_date": "2026-04-18",
+  "aoi": {
+    "west": 145.40265,
+    "south": -36.33742,
+    "east": 145.404,
+    "north": -36.3365
+  },
+  "source_review": "data/output/murchison_estate_2022_2026_fused_review/high_resolution_building_mode_review/review/index.html",
+  "cases": [
+    {
+      "case_id": "murchison-segformer-768-candidate-2",
+      "review_candidate_id": 2,
+      "source": "segformer_new_buildings_768",
+      "prediction": "new building",
+      "prediction_centroid_wgs84": [145.40312, -36.33714],
+      "human_assessment": "shadow_false_positive",
+      "expected_nearby_change": "building missed in the same review area",
+      "building_geometry_status": "needs_precise_label"
+    },
+    {
+      "case_id": "murchison-segformer-768-candidate-3",
+      "review_candidate_id": 3,
+      "source": "segformer_new_buildings_768",
+      "prediction": "cleared / demolition",
+      "prediction_centroid_wgs84": [145.40393, -36.33727],
+      "human_assessment": "irrelevant_change_false_positive",
+      "expected_nearby_change": "buildings missed in the same review area",
+      "building_geometry_status": "needs_precise_label"
+    }
+  ]
+}
