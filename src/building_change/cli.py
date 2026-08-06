@@ -18,6 +18,7 @@ def _add_detection_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--change-threshold", type=float, help="Fixed 0-1 score threshold; overrides --change-percentile.")
     parser.add_argument("--min-area-m2", type=float, default=20, help="Discard smaller candidate polygons (default: 20).")
     parser.add_argument("--morphology-m", type=float, default=0.6, help="Noise-removal size in metres (default: 0.6).")
+    parser.add_argument("--keep-shadow-changes", action="store_true", help="Do not defer potential shadow changes to uncertain review output.")
     parser.add_argument("--no-register", action="store_true", help="Disable sub-pixel translation registration.")
 
 
@@ -28,6 +29,7 @@ def _config(args: argparse.Namespace) -> DetectionConfig:
         min_area_m2=args.min_area_m2,
         morphology_m=args.morphology_m,
         enable_registration=not args.no_register,
+        enable_shadow_filter=not args.keep_shadow_changes,
     )
 
 

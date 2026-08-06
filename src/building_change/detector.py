@@ -26,6 +26,12 @@ class DetectionConfig:
     min_height_rise_m: float = 1.5
     max_registration_shift_px: float = 10.0
     enable_registration: bool = True
+    enable_shadow_filter: bool = True
+    shadow_percentile: float = 8.0
+    shadow_relative_brightness: float = 0.60
+    shadow_context_m: float = 8.0
+    shadow_dilation_m: float = 0.5
+    shadow_component_overlap: float = 0.5
 
 
 def _read_new_image(path: Path) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
@@ -47,17 +53,8 @@ def _reproject_rgb(source_path: Path, target_profile: dict[str, Any]) -> tuple[n
         if source.count < 3:
             raise ValueError(f"{source_path} has {source.count} band(s); an RGB GeoTIFF is required.")
         for band in range(1, 4):
-            reproject(
-                source=rasterio.band(source, band), destination=destination[band - 1],
-                src_transform=source.transform, src_crs=source.crs, src_nodata=source.nodata,
-                dst_transform=target_profile["transform"], dst_crs=target_profile["crs"],
-                dst_nodata=np.nan, resampling=Resampling.bilinear,
-            )
-        reproject(
-            source=source.read_masks(1), destination=valid_source,
-            src_transform=source.transform, src_crs=source.crs,
-            dst_transform=target_profile["transform"], dst_crs=target_profile["crs"], resampling=Resampling.nearest,
-        )
+            reproject(source=rasterio.band(source, band), destination=destination[band - 1], src_transform=source.transform, src_crs=source.crs, src_nodata=source.nodata, dst_transform=target_profile["transform"], dst_crs=target_profile["crs"], dst_nodata=np.nan, resampling=Resampling.bilinear)
+        reproject(source=source.read_masks(1), destination=valid_source, src_transform=source.transform, src_crs=source.crs, dst_transform=target_profile["transform"], dst_crs=target_profile["crs"], resampling=Resampling.nearest)
     return destination, np.all(np.isfinite(destination), axis=0) & (valid_source > 0)
 
 
@@ -66,17 +63,8 @@ def _reproject_single_band(source_path: Path, target_profile: dict[str, Any]) ->
     destination = np.full((height, width), np.nan, dtype=np.float32)
     valid_source = np.zeros((height, width), dtype=np.uint8)
     with rasterio.open(source_path) as source:
-        reproject(
-            source=rasterio.band(source, 1), destination=destination,
-            src_transform=source.transform, src_crs=source.crs, src_nodata=source.nodata,
-            dst_transform=target_profile["transform"], dst_crs=target_profile["crs"],
-            dst_nodata=np.nan, resampling=Resampling.bilinear,
-        )
-        reproject(
-            source=source.read_masks(1), destination=valid_source,
-            src_transform=source.transform, src_crs=source.crs,
-            dst_transform=target_profile["transform"], dst_crs=target_profile["crs"], resampling=Resampling.nearest,
-        )
+        reproject(source=rasterio.band(source, 1), destination=destination, src_transform=source.transform, src_crs=source.crs, src_nodata=source.nodata, dst_transform=target_profile["transform"], dst_crs=target_profile["crs"], dst_nodata=np.nan, resampling=Resampling.bilinear)
+        reproject(source=source.read_masks(1), destination=valid_source, src_transform=source.transform, src_crs=source.crs, dst_transform=target_profile["transform"], dst_crs=target_profile["crs"], resampling=Resampling.nearest)
     return destination, np.isfinite(destination) & (valid_source > 0)
 
 
@@ -91,9 +79,7 @@ def _normalise_rgb(rgb: np.ndarray, valid: np.ndarray) -> np.ndarray:
     return np.moveaxis(result, 0, -1)
 
 
-def _register_before(
-    before: np.ndarray, after: np.ndarray, valid: np.ndarray, *, enabled: bool, max_shift_px: float
-) -> tuple[np.ndarray, np.ndarray, dict[str, float | bool | str]]:
+def _register_before(before: np.ndarray, after: np.ndarray, valid: np.ndarray, *, enabled: bool, max_shift_px: float) -> tuple[np.ndarray, np.ndarray, dict[str, float | bool | str]]:
     """Perform conservative translation-only ECC registration."""
     details: dict[str, float | bool | str] = {"applied": False, "dx_px": 0.0, "dy_px": 0.0}
     height, width = before.shape[:2]
@@ -111,7 +97,7 @@ def _register_before(
     after_small = cv2.GaussianBlur(cv2.resize(after_gray, size, interpolation=cv2.INTER_AREA), (5, 5), 0)
     mask_small = cv2.resize(valid.astype(np.uint8) * 255, size, interpolation=cv2.INTER_NEAREST)
     warp = np.eye(2, 3, dtype=np.float32)
-    criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 80, 1e-6)
+    criteria = cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 80, 1e-6
     try:
         correlation, warp = cv2.findTransformECC(after_small, before_small, warp, cv2.MOTION_TRANSLATION, criteria, inputMask=mask_small)
         warp[:, 2] /= scale
@@ -136,6 +122,11 @@ def _pixel_size_m(profile: dict[str, Any]) -> float:
     return 1.0
 
 
+def _kernel_size_m(size_m: float, profile: dict[str, Any]) -> int:
+    size = max(1, round(size_m / _pixel_size_m(profile)))
+    return size if size % 2 else size + 1
+
+
 def _change_score(before: np.ndarray, after: np.ndarray) -> np.ndarray:
     before_smooth = cv2.GaussianBlur(before, (5, 5), 0)
     after_smooth = cv2.GaussianBlur(after, (5, 5), 0)
@@ -147,6 +138,28 @@ def _change_score(before: np.ndarray, after: np.ndarray) -> np.ndarray:
     after_edges = cv2.Sobel(after_gray, cv2.CV_32F, 1, 0, ksize=3) ** 2 + cv2.Sobel(after_gray, cv2.CV_32F, 0, 1, ksize=3) ** 2
     edges = np.abs(np.sqrt(after_edges) - np.sqrt(before_edges)) / (255.0 * math.sqrt(2.0))
     return np.clip(0.8 * colour + 0.2 * edges, 0, 1).astype(np.float32)
+
+
+def _shadow_mask(rgb: np.ndarray, valid: np.ndarray, profile: dict[str, Any], config: DetectionConfig) -> np.ndarray:
+    """Detect potentially cast shadow pixels from original image brightness."""
+    if not config.enable_shadow_filter:
+        return np.zeros(valid.shape, dtype=bool)
+    if not 0 < config.shadow_percentile < 100:
+        raise ValueError("shadow_percentile must be between 0 and 100.")
+    if not 0 < config.shadow_relative_brightness < 1:
+        raise ValueError("shadow_relative_brightness must be between 0 and 1.")
+    brightness = cv2.cvtColor(np.moveaxis(rgb, 0, -1) if rgb.ndim == 3 and rgb.shape[0] == 3 else rgb, cv2.COLOR_RGB2GRAY)
+    values = brightness[valid]
+    if not values.size or float(np.max(values) - np.min(values)) < 5.0:
+        return np.zeros(valid.shape, dtype=bool)
+    scene_cutoff = float(np.percentile(values, config.shadow_percentile))
+    sigma_px = max(1.0, config.shadow_context_m / _pixel_size_m(profile))
+    local_context = cv2.GaussianBlur(brightness, (0, 0), sigmaX=sigma_px, sigmaY=sigma_px)
+    result = valid & (brightness <= scene_cutoff) & (brightness <= local_context * config.shadow_relative_brightness)
+    dilation = _kernel_size_m(config.shadow_dilation_m, profile)
+    if dilation > 1:
+        result = cv2.dilate(result.astype(np.uint8), cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (dilation, dilation))).astype(bool) & valid
+    return result
 
 
 def _clean_mask(score: np.ndarray, valid: np.ndarray, profile: dict[str, Any], config: DetectionConfig) -> tuple[np.ndarray, float]:
@@ -161,13 +174,28 @@ def _clean_mask(score: np.ndarray, valid: np.ndarray, profile: dict[str, Any], c
     if not 0 <= threshold <= 1:
         raise ValueError("change_threshold must be between 0 and 1.")
     mask = ((score >= threshold) & valid).astype(np.uint8)
-    kernel_size = max(1, round(config.morphology_m / _pixel_size_m(profile)))
+    kernel_size = _kernel_size_m(config.morphology_m, profile)
     if kernel_size > 1:
-        kernel_size = kernel_size if kernel_size % 2 else kernel_size + 1
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_size, kernel_size))
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
     return mask, float(threshold)
+
+
+def _separate_shadow_components(raw_mask: np.ndarray, shadow_uncertain: np.ndarray, min_overlap: float) -> tuple[np.ndarray, np.ndarray]:
+    """Defer a raw region only when a substantial part is potentially shadowed."""
+    if not 0 < min_overlap <= 1:
+        raise ValueError("shadow_component_overlap must be greater than 0 and at most 1.")
+    if not np.any(shadow_uncertain):
+        return raw_mask.astype(np.uint8), np.zeros(raw_mask.shape, dtype=np.uint8)
+    count, labels = cv2.connectedComponents(raw_mask.astype(np.uint8), connectivity=8)
+    automatic = np.zeros(raw_mask.shape, dtype=np.uint8)
+    uncertain = np.zeros(raw_mask.shape, dtype=np.uint8)
+    for label in range(1, count):
+        component = labels == label
+        overlap = float(np.count_nonzero(component & shadow_uncertain)) / float(np.count_nonzero(component))
+        (uncertain if overlap >= min_overlap else automatic)[component] = 1
+    return automatic, uncertain
 
 
 def _area_m2(geometry, source_crs) -> float:
@@ -187,16 +215,12 @@ def _write_geojson(path: Path, features: list[dict[str, Any]]) -> None:
     path.write_text(json.dumps({"type": "FeatureCollection", "features": features}, indent=2), encoding="utf-8")
 
 
-def _vectorise(
-    mask: np.ndarray, score: np.ndarray, profile: dict[str, Any], config: DetectionConfig, *,
-    height_delta: np.ndarray | None, valid_height: np.ndarray | None, metadata: dict[str, str],
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+def _vectorise(mask: np.ndarray, score: np.ndarray, profile: dict[str, Any], config: DetectionConfig, *, height_delta: np.ndarray | None, valid_height: np.ndarray | None, metadata: dict[str, str], forced_classification: str | None = None) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     candidates: list[dict[str, Any]] = []
     likely_buildings: list[dict[str, Any]] = []
     source_crs = profile["crs"]
     if source_crs is None:
         raise ValueError("The after image has no CRS; a GeoTIFF with georeferencing is required.")
-    # rasterio.features.shapes returns (geometry, pixel_value), in that order.
     for geometry_json, value in shapes(mask, mask=mask.astype(bool), transform=profile["transform"]):
         if value != 1:
             continue
@@ -211,36 +235,19 @@ def _vectorise(
             values = height_delta[footprint & valid_height]
             if values.size:
                 mean_height_change = float(np.mean(values))
-        classification = "construction_change_candidate"
-        if mean_height_change is not None:
-            if mean_height_change >= config.min_height_rise_m:
-                classification = "likely_new_building"
-            elif mean_height_change <= -config.min_height_rise_m:
-                classification = "likely_demolition"
-        elif rectangularity >= config.building_rectangularity:
+        classification = forced_classification or "construction_change_candidate"
+        if forced_classification is None and mean_height_change is not None:
+            classification = "likely_new_building" if mean_height_change >= config.min_height_rise_m else "likely_demolition" if mean_height_change <= -config.min_height_rise_m else classification
+        elif forced_classification is None and rectangularity >= config.building_rectangularity:
             classification = "likely_building_change"
-        feature = {
-            "type": "Feature",
-            "geometry": transform_geom(source_crs, "EPSG:4326", mapping(geometry), precision=7),
-            "properties": {
-                "candidate_id": len(candidates) + 1, "classification": classification,
-                "area_m2": round(area, 2), "rectangularity": round(rectangularity, 3),
-                "mean_change_score": round(float(np.mean(score[footprint])), 4),
-                "mean_height_change_m": round(mean_height_change, 3) if mean_height_change is not None else None,
-                **metadata,
-            },
-        }
+        feature = {"type": "Feature", "geometry": transform_geom(source_crs, "EPSG:4326", mapping(geometry), precision=7), "properties": {"candidate_id": len(candidates) + 1, "classification": classification, "area_m2": round(area, 2), "rectangularity": round(rectangularity, 3), "mean_change_score": round(float(np.mean(score[footprint])), 4), "mean_height_change_m": round(mean_height_change, 3) if mean_height_change is not None else None, **metadata}}
         candidates.append(feature)
         if classification == "likely_new_building" or (height_delta is None and classification == "likely_building_change"):
             likely_buildings.append(feature)
     return candidates, likely_buildings
 
 
-def run_detection(
-    before_image: str | Path, after_image: str | Path, output_dir: str | Path, *,
-    before_dsm: str | Path | None = None, after_dsm: str | Path | None = None,
-    config: DetectionConfig | None = None, before_capture_date: str | None = None, after_capture_date: str | None = None,
-) -> dict[str, Any]:
+def run_detection(before_image: str | Path, after_image: str | Path, output_dir: str | Path, *, before_dsm: str | Path | None = None, after_dsm: str | Path | None = None, config: DetectionConfig | None = None, before_capture_date: str | None = None, after_capture_date: str | None = None) -> dict[str, Any]:
     """Run the full local detection stage and return a JSON-serialisable report."""
     if (before_dsm is None) != (after_dsm is None):
         raise ValueError("Provide both before_dsm and after_dsm, or neither.")
@@ -252,14 +259,17 @@ def run_detection(
     after_rgb, after_valid, profile = _read_new_image(after_path)
     before_rgb, before_valid = _reproject_rgb(before_path, profile)
     before_normal, after_normal = _normalise_rgb(before_rgb, before_valid), _normalise_rgb(after_rgb, after_valid)
-    before_aligned, aligned_valid, registration = _register_before(
-        before_normal, after_normal, before_valid & after_valid,
-        enabled=config.enable_registration, max_shift_px=config.max_registration_shift_px,
-    )
+    before_aligned, aligned_valid, registration = _register_before(before_normal, after_normal, before_valid & after_valid, enabled=config.enable_registration, max_shift_px=config.max_registration_shift_px)
     valid = aligned_valid & after_valid
     score = _change_score(before_aligned, after_normal)
     score[~valid] = 0
-    mask, threshold = _clean_mask(score, valid, profile, config)
+    raw_mask, threshold = _clean_mask(score, valid, profile, config)
+    # Preserve original radiometry for shadow detection. Normalisation serves
+    # comparison but can otherwise turn a uniform surface into false darkness.
+    before_shadow = _shadow_mask(before_rgb, before_valid, profile, config)
+    after_shadow = _shadow_mask(after_rgb, after_valid, profile, config)
+    shadow_uncertain = (before_shadow | after_shadow) & valid
+    mask, uncertain_mask = _separate_shadow_components(raw_mask, shadow_uncertain, config.shadow_component_overlap)
     height_delta: np.ndarray | None = None
     valid_height: np.ndarray | None = None
     if before_dsm is not None and after_dsm is not None:
@@ -268,21 +278,17 @@ def run_detection(
         height_delta = after_elevation - before_elevation
         valid_height = before_elevation_valid & after_elevation_valid & valid
         height_delta[~valid_height] = np.nan
-    candidates, likely_buildings = _vectorise(
-        mask, score, profile, config, height_delta=height_delta, valid_height=valid_height,
-        metadata={"before_capture_date": before_capture_date or "unknown", "after_capture_date": after_capture_date or "unknown"},
-    )
-    score_path, mask_path = output_path / "change_score.tif", output_path / "change_mask.tif"
-    candidates_path, buildings_path = output_path / "construction_change_candidates.geojson", output_path / "likely_new_buildings.geojson"
+    metadata = {"before_capture_date": before_capture_date or "unknown", "after_capture_date": after_capture_date or "unknown"}
+    candidates, likely_buildings = _vectorise(mask, score, profile, config, height_delta=height_delta, valid_height=valid_height, metadata=metadata)
+    uncertain_candidates, _ = _vectorise(uncertain_mask, score, profile, config, height_delta=None, valid_height=None, metadata=metadata, forced_classification="uncertain_shadow")
+    score_path, mask_path, shadow_path = output_path / "change_score.tif", output_path / "change_mask.tif", output_path / "shadow_uncertainty_mask.tif"
+    candidates_path, buildings_path, uncertain_path = output_path / "construction_change_candidates.geojson", output_path / "likely_new_buildings.geojson", output_path / "uncertain_shadow_candidates.geojson"
     _write_raster(score_path, score, profile, dtype="float32", nodata=-9999.0)
     _write_raster(mask_path, mask * 255, profile, dtype="uint8", nodata=0)
+    _write_raster(shadow_path, shadow_uncertain * 255, profile, dtype="uint8", nodata=0)
     _write_geojson(candidates_path, candidates)
     _write_geojson(buildings_path, likely_buildings)
-    report = {
-        "before_image": str(before_path), "after_image": str(after_path),
-        "outputs": {"change_score": str(score_path), "change_mask": str(mask_path), "construction_candidates": str(candidates_path), "likely_new_buildings": str(buildings_path)},
-        "candidate_count": len(candidates), "likely_new_building_count": len(likely_buildings),
-        "threshold": threshold, "registration": registration, "used_dsm": height_delta is not None, "config": asdict(config),
-    }
+    _write_geojson(uncertain_path, uncertain_candidates)
+    report = {"before_image": str(before_path), "after_image": str(after_path), "outputs": {"change_score": str(score_path), "change_mask": str(mask_path), "shadow_uncertainty_mask": str(shadow_path), "construction_candidates": str(candidates_path), "likely_new_buildings": str(buildings_path), "uncertain_shadow_candidates": str(uncertain_path)}, "candidate_count": len(candidates), "likely_new_building_count": len(likely_buildings), "uncertain_shadow_candidate_count": len(uncertain_candidates), "shadow_uncertain_pixel_count": int(shadow_uncertain.sum()), "threshold": threshold, "registration": registration, "used_dsm": height_delta is not None, "config": asdict(config)}
     (output_path / "run_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     return report

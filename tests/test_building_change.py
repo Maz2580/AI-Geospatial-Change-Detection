@@ -56,6 +56,29 @@ class DetectionTests(unittest.TestCase):
             classifications = [feature["properties"]["classification"] for feature in candidates["features"]]
             self.assertIn("likely_new_building", classifications)
 
+    def test_defers_shadow_only_change_to_uncertain_output(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            before_rgb = np.full((3, 100, 100), 180, dtype=np.uint8)
+            # Stable low/high reference strips keep per-image normalisation
+            # unchanged, emulating a real image with tonal variation.
+            before_rgb[:, :5, :] = 0
+            before_rgb[:, 5:10, :] = 255
+            after_rgb = before_rgb.copy()
+            # A dark, locally isolated patch in the older image emulates a cast shadow.
+            before_rgb[:, 35:55, 35:55] = 50
+            before_path, after_path = root / "before.tif", root / "after.tif"
+            self._write_tif(before_path, before_rgb)
+            self._write_tif(after_path, after_rgb)
+            report = run_detection(
+                before_path, after_path, root / "output",
+                config=DetectionConfig(change_threshold=0.05, morphology_m=0, min_area_m2=20, enable_registration=False),
+            )
+            self.assertEqual(report["candidate_count"], 0)
+            self.assertGreaterEqual(report["uncertain_shadow_candidate_count"], 1)
+            uncertain = json.loads(Path(report["outputs"]["uncertain_shadow_candidates"]).read_text())
+            self.assertEqual(uncertain["features"][0]["properties"]["classification"], "uncertain_shadow")
+
 
 if __name__ == "__main__":
     unittest.main()
