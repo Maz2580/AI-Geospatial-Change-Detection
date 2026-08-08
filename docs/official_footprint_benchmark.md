@@ -39,6 +39,7 @@ same small AOI, then render those reference candidates in the existing review:
   --before data\output\melbourne_cbd\imagery\before_DATE_Vert_tiles.tif `
   --after data\output\melbourne_cbd\imagery\after_DATE_Vert_tiles.tif `
   --candidates data\benchmarks\melbourne_cbd_west_2020_2023\reference\footprint_change_candidates.geojson `
+  --candidate-source "City of Melbourne dated footprint comparison (review prompt only)" `
   --output data\benchmarks\melbourne_cbd_west_2020_2023\reference_review
 ```
 

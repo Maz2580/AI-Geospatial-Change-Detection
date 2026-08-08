@@ -28,9 +28,12 @@ class ReviewTests(unittest.TestCase):
         profile = {"crs": "EPSG:3857", "transform": from_origin(0, 100, 1, 1)}
         image = np.zeros((100, 100, 3), dtype=np.uint8)
         with tempfile.TemporaryDirectory() as directory:
-            index = write_candidate_review(image, image, profile, [feature], directory)
+            index = write_candidate_review(
+                image, image, profile, [feature], directory, candidate_source="an official dated footprint comparison"
+            )
             self.assertTrue(index.is_file())
             self.assertTrue((Path(directory) / "review" / "candidate_001_before.png").is_file())
+            self.assertIn("official dated footprint comparison", index.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

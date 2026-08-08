@@ -64,12 +64,16 @@ def write_candidate_review(
     profile: dict[str, Any],
     features: list[dict[str, Any]],
     output_dir: str | Path,
+    *,
+    candidate_source: str = "the change detector",
 ) -> Path:
     """Write HTML plus annotated PNG crops for manual quality assurance.
 
     ``before`` and ``after`` are matching H×W×RGB arrays on ``profile``'s
     raster grid. This means the review images show exactly what the detector
-    evaluated, including any registration correction.
+    evaluated, including any registration correction. ``candidate_source`` is
+    rendered verbatim so an official-map review prompt is never presented as a
+    model prediction.
     """
 
     review_dir = Path(output_dir) / "review"
@@ -111,8 +115,7 @@ article{background:white;border:1px solid #d8dee4;border-radius:10px;padding:1re
 img{width:100%;max-height:520px;object-fit:contain;background:#20252f;border-radius:4px}figcaption{font-weight:650;margin-bottom:.45rem}
 table{border-collapse:collapse;margin-top:1rem}th,td{padding:.35rem .6rem;border:1px solid #d8dee4;text-align:left}th{text-transform:capitalize;background:#f6f8fa}
 </style></head><body><h1>Construction change review</h1>
-<p>Red outlines are candidates extracted by the change detector. Review the before/after pair before treating an RGB-only result as a confirmed new building.</p>
-""" + "\n".join(cards) + "</body></html>"
+""" + f"<p>Red outlines are candidates supplied by {escape(candidate_source)}. Review the before/after pair before treating an RGB-only result as a confirmed new building.</p>" + "\n".join(cards) + "</body></html>"
     index_path = review_dir / "index.html"
     index_path.write_text(html, encoding="utf-8")
     (review_dir / "candidates.geojson").write_text(

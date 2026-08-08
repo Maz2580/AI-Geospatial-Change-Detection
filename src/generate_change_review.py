@@ -32,6 +32,7 @@ def main() -> None:
     parser.add_argument("--after", required=True, type=Path, help="Newer RGB GeoTIFF; defines the output grid.")
     parser.add_argument("--candidates", required=True, type=Path, help="Construction-candidate GeoJSON.")
     parser.add_argument("--output", required=True, type=Path, help="Existing run output directory.")
+    parser.add_argument("--candidate-source", default="the change detector", help="Human-readable source shown in the review page.")
     parser.add_argument("--no-register", action="store_true", help="Skip the same conservative registration used by the detector.")
     args = parser.parse_args()
 
@@ -47,7 +48,9 @@ def main() -> None:
         enabled=not args.no_register,
         max_shift_px=10.0,
     )
-    index = write_candidate_review(before_aligned, after_normal, profile, features, args.output)
+    index = write_candidate_review(
+        before_aligned, after_normal, profile, features, args.output, candidate_source=args.candidate_source
+    )
     print(index)
 
 
