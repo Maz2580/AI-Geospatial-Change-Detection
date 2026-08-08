@@ -15,8 +15,8 @@ class ValidationManifestTests(unittest.TestCase):
     def test_committed_pilot_evidence_is_locked_and_valid(self) -> None:
         report = validate_manifest(load_validation_manifest(MANIFEST), root=ROOT)
         self.assertEqual(report["benchmark"], "victoria_building_change_pilot_evidence")
-        self.assertEqual(report["case_count"], 2)
-        self.assertEqual(report["verified_artifact_count"], 6)
+        self.assertEqual(report["case_count"], 3)
+        self.assertEqual(report["verified_artifact_count"], 8)
 
     def test_rejects_silent_artifact_hash_change(self) -> None:
         manifest = copy.deepcopy(load_validation_manifest(MANIFEST))
