@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "case_id": "east_melbourne_extension_2020_2023",
+  "status": "requires_human_review",
+  "source_reference": {
+    "path": "data/benchmarks/east_melbourne_extension_2020_2023/reference/footprint_change_candidates.geojson",
+    "source": "unknown",
+    "warning": "Reference-map geometry is a review prompt only. Do not copy it into after_roof_labels."
+  },
+  "source_imagery": {
+    "before": "2020-11-08",
+    "after": "2023-11-10"
+  },
+  "label_definition": {
+    "real_visible_change": "A permanent change is visibly supported by the fixed before/after imagery.",
+    "mapping_only_or_not_visible": "The reference-map difference is not a visible permanent change in the fixed imagery pair.",
+    "after_roof_labels": "Human-drawn after-date roof outlines. They must remain empty until manually digitised from the after image."
+  },
+  "labels": [
+    {
+      "reference_candidate_id": 1,
+      "assessment": "unreviewed",
+      "visible_change_type": "unreviewed",
+      "review_notes": ""
+    }
+  ],
+  "after_roof_labels": {
+    "type": "FeatureCollection",
+    "features": [],
+    "required_properties": {
+      "object_id": "unique stable string, for example docklands-001-roof-01",
+      "change_type": "new_building, building_extension, unchanged_building, or not_a_building",
+      "reference_candidate_ids": "list of reviewed official-reference candidate IDs, possibly empty",
+      "label_source": "human_review"
+    }
+  }
+}

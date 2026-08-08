@@ -1,0 +1,75 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              [
+                144.97751672069066,
+                -37.813402364780444
+              ],
+              [
+                144.97748720439333,
+                -37.81339941380547
+              ],
+              [
+                144.9774843080074,
+                -37.81341763543864
+              ],
+              [
+                144.9774094043536,
+                -37.81341014242433
+              ],
+              [
+                144.97740495830726,
+                -37.81343811161242
+              ],
+              [
+                144.977480794313,
+                -37.81344569814567
+              ],
+              [
+                144.97747846710305,
+                -37.81346033745972
+              ],
+              [
+                144.97750705105028,
+                -37.81346319672393
+              ],
+              [
+                144.97751672069066,
+                -37.813402364780444
+              ]
+            ]
+          ]
+        ],
+        "type": "MultiPolygon"
+      },
+      "properties": {
+        "candidate_id": 1,
+        "snapshot_year": 2020,
+        "source": "City of Melbourne Building Footprints",
+        "evidence_role": "dated_reference_footprint"
+      }
+    }
+  ],
+  "metadata": {
+    "crs": "EPSG:4326",
+    "requested_detector": "city_melbourne_2020_reference",
+    "source": "City of Melbourne Building Footprints",
+    "source_dataset": "2020-building-footprints",
+    "source_url": "https://data.melbourne.vic.gov.au/api/explore/v2.1/catalog/datasets/2020-building-footprints/records",
+    "license": "CC BY 4.0",
+    "query_bbox_wgs84": {
+      "west": 144.9768,
+      "south": -37.8141,
+      "east": 144.978,
+      "north": -37.8128
+    },
+    "evidence_role": "dated_reference_footprint",
+    "warning": "Snapshot changes require imagery review; footprint updates can reflect mapping changes and map wall footprints rather than roof edges."
+  }
+}
