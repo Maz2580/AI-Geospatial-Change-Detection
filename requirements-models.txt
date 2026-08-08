@@ -1,0 +1,5 @@
+# Optional local semantic-model stage. Install inside the project's venv only.
+# The DINO building model runs on CPU by default, so this does not need a
+# system CUDA installation. GPU acceleration can be configured separately.
+huggingface-hub>=0.26
+onnxruntime>=1.20
