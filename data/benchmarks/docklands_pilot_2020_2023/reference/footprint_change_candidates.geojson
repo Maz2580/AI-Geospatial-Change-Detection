@@ -1,0 +1,74 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.94502746,
+              -37.81688216
+            ],
+            [
+              144.94506457,
+              -37.81696709
+            ],
+            [
+              144.94522715,
+              -37.81692239
+            ],
+            [
+              144.94523397,
+              -37.81693799
+            ],
+            [
+              144.94536049,
+              -37.81690319
+            ],
+            [
+              144.94532682,
+              -37.81682617
+            ],
+            [
+              144.94534107,
+              -37.81682225
+            ],
+            [
+              144.94533079,
+              -37.81679874
+            ],
+            [
+              144.94502746,
+              -37.81688216
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "candidate_id": 1,
+        "classification": "new_building_footprint_candidate",
+        "area_m2": 472.0,
+        "outside_before_area_m2": 472.0,
+        "before_overlap_fraction": 0.0,
+        "nearest_before_footprint_distance_m": 7.6,
+        "best_before_footprint_iou": 0.0,
+        "matched_before_footprint_ids": [],
+        "evidence_role": "object_footprint_refinement",
+        "footprint_detector": "city_melbourne_2023_reference"
+      }
+    }
+  ],
+  "metadata": {
+    "crs": "EPSG:4326",
+    "evidence_role": "object_footprint_refinement",
+    "before_footprint_count": 2,
+    "after_footprint_count": 3,
+    "match_distance_m": 6.0,
+    "match_iou": 0.1,
+    "extension_outside_fraction": 0.25,
+    "before_detector": "city_melbourne_2020_reference",
+    "after_detector": "city_melbourne_2023_reference"
+  }
+}

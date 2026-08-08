@@ -1,0 +1,161 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              144.9450274568,
+              -37.8168821566
+            ],
+            [
+              144.9450645734,
+              -37.8169670938
+            ],
+            [
+              144.9452271515,
+              -37.8169223879
+            ],
+            [
+              144.945233972,
+              -37.8169379945
+            ],
+            [
+              144.9453604851,
+              -37.8169031874
+            ],
+            [
+              144.9453268155,
+              -37.8168261705
+            ],
+            [
+              144.9453410707,
+              -37.8168222486
+            ],
+            [
+              144.9453307943,
+              -37.8167987433
+            ],
+            [
+              144.9450274568,
+              -37.8168821566
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "properties": {
+        "candidate_id": 1,
+        "snapshot_year": 2023,
+        "source": "City of Melbourne Building Footprints",
+        "evidence_role": "dated_reference_footprint"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              144.945080963,
+              -37.8170384653
+            ],
+            [
+              144.9450732202,
+              -37.8170207654
+            ],
+            [
+              144.9448822017,
+              -37.8170736079
+            ],
+            [
+              144.9448678119,
+              -37.8170775887
+            ],
+            [
+              144.9448755878,
+              -37.8170952792
+            ],
+            [
+              144.9448899238,
+              -37.8170913138
+            ],
+            [
+              144.945080963,
+              -37.8170384653
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "properties": {
+        "candidate_id": 2,
+        "snapshot_year": 2023,
+        "source": "City of Melbourne Building Footprints",
+        "evidence_role": "dated_reference_footprint"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              144.9448937486,
+              -37.8171000813
+            ],
+            [
+              144.9448899238,
+              -37.8170913138
+            ],
+            [
+              144.9448822017,
+              -37.8170736079
+            ],
+            [
+              144.9448810257,
+              -37.8170709127
+            ],
+            [
+              144.9446148906,
+              -37.817143952
+            ],
+            [
+              144.9446276111,
+              -37.8171731206
+            ],
+            [
+              144.9448937486,
+              -37.8171000813
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "properties": {
+        "candidate_id": 3,
+        "snapshot_year": 2023,
+        "source": "City of Melbourne Building Footprints",
+        "evidence_role": "dated_reference_footprint"
+      }
+    }
+  ],
+  "metadata": {
+    "crs": "EPSG:4326",
+    "requested_detector": "city_melbourne_2023_reference",
+    "source": "City of Melbourne Building Footprints",
+    "source_dataset": "2023-building-footprints",
+    "source_url": "https://data.melbourne.vic.gov.au/api/explore/v2.1/catalog/datasets/2023-building-footprints/records",
+    "license": "CC BY 4.0",
+    "query_bbox_wgs84": {
+      "west": 144.9445,
+      "south": -37.8173,
+      "east": 144.9459,
+      "north": -37.8165
+    },
+    "evidence_role": "dated_reference_footprint",
+    "warning": "Snapshot changes require imagery review; footprint updates can reflect mapping changes and map wall footprints rather than roof edges."
+  }
+}
