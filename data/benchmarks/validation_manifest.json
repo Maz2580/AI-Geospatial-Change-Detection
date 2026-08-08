@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "benchmark": "victoria_building_change_pilot_evidence",
+  "purpose": "Freeze the existing human-reviewed Victorian evidence before comparing any additional pretrained model or beginning any fine-tuning.",
+  "rules": [
+    "Do not change a locked artifact in place. Create a new manifest revision with the reason, reviewer, and date.",
+    "Do not tune a model threshold, select a checkpoint, or choose an architecture using a pilot case and then report that same case as final performance.",
+    "Unmatched predictions remain review items unless the case has a complete independent negative reference set.",
+    "A new method must record its model identifier, source, inference settings, image dates, and code commit before comparison."
+  ],
+  "cases": [
+    {
+      "case_id": "melbourne_cbd_west_2020_2023",
+      "split": "pilot",
+      "scene_type": "dense CBD with tall buildings and heavy shadow",
+      "near_map_dates": {
+        "before": "2020-11-08",
+        "after": "2023-11-10"
+      },
+      "supported_measurements": [
+        "candidate recall against seven human-confirmed visible reference changes",
+        "candidate intersections with three rejected mapping-only reference changes",
+        "review workload, reported as candidate count and unmatched predictions"
+      ],
+      "limitations": [
+        "Reference shapes are City of Melbourne wall/base footprints, not pixel-perfect roof labels.",
+        "The reference set is incomplete outside its ten reviewed footprint differences, so unmatched predictions are not false positives.",
+        "This case cannot set a production threshold or certify outline quality."
+      ],
+      "artifacts": [
+        {
+          "role": "human-reviewed reference labels",
+          "path": "data/labels/melbourne_cbd_west_2020_2023_reference_review_labels.json",
+          "sha256": "2F354DF6385FF8A63314D657FFDC873B7288AB06120CB5EBFD6105DEC3F8718D"
+        },
+        {
+          "role": "dated-reference change candidates",
+          "path": "data/benchmarks/melbourne_cbd_west_2020_2023/reference/footprint_change_candidates.geojson",
+          "sha256": "4C76D0F6D9510EBE1FA79C653659F0E6A351E40196E0CE3D4B812D7C70D8F61B"
+        },
+        {
+          "role": "recorded RGB baseline",
+          "path": "data/benchmarks/melbourne_cbd_west_2020_2023/baseline_measurements.json",
+          "sha256": "9DF566124AA3701E26C91C0C072D8D6642EC85C17C05290548732C8385B3E9C7"
+        }
+      ]
+    },
+    {
+      "case_id": "murchison_estate_2022_2026",
+      "split": "pilot",
+      "scene_type": "new estate with small buildings, pools, gardens, driveways and cast shadows",
+      "near_map_dates": {
+        "before": "2022-07-30",
+        "after": "2026-04-18"
+      },
+      "supported_measurements": [
+        "failure-mode accounting for shadows, missed buildings, fragmented outlines, pools, gardens and hardscape",
+        "manual site-level recall observations where the reviewer recorded known building totals",
+        "qualitative comparison of complete after-date roof outlines against partial change evidence"
+      ],
+      "limitations": [
+        "Existing labels describe candidates from prior methods and are not independent, complete building geometry ground truth.",
+        "Several site labels intentionally have unknown building totals.",
+        "This case must not be used as a sole numeric recall or precision score for a new method."
+      ],
+      "artifacts": [
+        {
+          "role": "construction-site review labels",
+          "path": "data/labels/murchison_estate_2022_2026_site_review_labels.json",
+          "sha256": "64A15D2142BF25D9CA6C8B6BDE4C03238FDFCE94AC90246B857B17B837F77716"
+        },
+        {
+          "role": "footprint failure labels",
+          "path": "data/labels/murchison_estate_2022_2026_footprint_review_labels.json",
+          "sha256": "922EB124B6E78B935769820114B19BEEDF4ACE302C61DCC159D9A3CF42F63EF9"
+        },
+        {
+          "role": "shadow and missed-building failure cases",
+          "path": "data/labels/murchison_estate_2022_2026_failure_cases.json",
+          "sha256": "9170AEF307B7DBE323708CF85806BCB53B27310A3DF1460C8E8B4204F511A2E2"
+        }
+      ]
+    }
+  ],
+  "promotion_requirements": [
+    "Add geographically independent Victorian cases for a shaded suburb, low-rise estate, industrial area and CBD.",
+    "For every promoted hold-out case, label full after-date roof geometry and each permanent change as new building, extension, demolition, pool, driveway, garden/soil, shadow or vehicle.",
+    "Record explicit negatives so false-positive precision can be measured.",
+    "Keep hold-out labels hidden from model and threshold selection until the comparison run is complete."
+  ]
+}
