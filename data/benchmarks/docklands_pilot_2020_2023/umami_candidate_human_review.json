@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "case_id": "docklands_pilot_2020_2023",
+  "review_status": "human_review_complete",
+  "fixed_imagery": {
+    "before": "2020-04-28",
+    "after": "2023-07-06"
+  },
+  "scope": "Visual review of all candidates returned by the paired UMAMI smoke test. This is diagnostic evidence, not a held-out production score.",
+  "model_reviews": [
+    {
+      "model_id": "umami_dfine_change",
+      "candidate_path": "data/benchmarks/docklands_pilot_2020_2023/umami_dfine_change/umami_dfine_change_all_candidates.geojson",
+      "model": {
+        "service": "UMAMI Encroachment",
+        "detector": "D-FINE",
+        "mode": "change",
+        "long_side": 768,
+        "percentile": 90
+      },
+      "labels": [
+        {
+          "candidate_id": 1,
+          "assessment": "confirmed_target_change",
+          "target_type": "new_building",
+          "outline_quality": "good",
+          "review_notes": "Human reviewer found this candidate good: it identifies the target building with an acceptable outline."
+        },
+        {
+          "candidate_id": 2,
+          "assessment": "temporary_or_movable_change",
+          "target_type": "not_applicable",
+          "outline_quality": "not_assessed",
+          "observed_object": "ship_or_cruise",
+          "review_notes": "A ship or cruise vessel was present in the before image and absent later. This is a temporary, non-construction change."
+        },
+        {
+          "candidate_id": 3,
+          "assessment": "temporary_or_movable_change",
+          "target_type": "not_applicable",
+          "outline_quality": "poor",
+          "observed_object": "temporary_structure",
+          "review_notes": "A new temporary white-roof structure is visible, but the model labels it as paving and its outline is not correct. It is outside the permanent-construction target."
+        },
+        {
+          "candidate_id": 4,
+          "assessment": "inconclusive_due_image_ambiguity",
+          "target_type": "not_applicable",
+          "outline_quality": "not_assessed",
+          "review_notes": "The reviewer judged this candidate incorrect but the imagery is too difficult to resolve confidently even by eye."
+        }
+      ]
+    },
+    {
+      "model_id": "umami_segformer_change",
+      "candidate_path": "data/benchmarks/docklands_pilot_2020_2023/umami_segformer_change/umami_segformer_change_all_candidates.geojson",
+      "model": {
+        "service": "UMAMI Encroachment",
+        "detector": "SegFormer",
+        "mode": "change",
+        "long_side": 768,
+        "percentile": 90
+      },
+      "labels": [
+        {
+          "candidate_id": 1,
+          "assessment": "confirmed_target_change",
+          "target_type": "new_building",
+          "outline_quality": "good",
+          "review_notes": "Human reviewer found this candidate good: it identifies the target building with an acceptable outline."
+        },
+        {
+          "candidate_id": 2,
+          "assessment": "temporary_or_movable_change",
+          "target_type": "not_applicable",
+          "outline_quality": "not_assessed",
+          "observed_object": "ship_or_cruise",
+          "review_notes": "A ship or cruise vessel was present in the before image and absent later. This is a temporary, non-construction change."
+        },
+        {
+          "candidate_id": 3,
+          "assessment": "temporary_or_movable_change",
+          "target_type": "not_applicable",
+          "outline_quality": "poor",
+          "observed_object": "temporary_structure",
+          "review_notes": "A new temporary white-roof structure is visible, but the model labels it as paving and its outline is not correct. It is outside the permanent-construction target."
+        },
+        {
+          "candidate_id": 4,
+          "assessment": "temporary_or_movable_change",
+          "target_type": "not_applicable",
+          "outline_quality": "not_assessed",
+          "observed_object": "ship_or_cruise",
+          "review_notes": "This is another candidate for the ship/cruise situation, not a permanent construction change."
+        },
+        {
+          "candidate_id": 5,
+          "assessment": "not_target_change",
+          "target_type": "not_applicable",
+          "outline_quality": "not_assessed",
+          "observed_object": "likely_vehicle_or_paving_appearance",
+          "review_notes": "The reviewer found no real target change; it appears to be a car-like transient object or a paving-colour difference."
+        },
+        {
+          "candidate_id": 6,
+          "assessment": "inconclusive_due_image_ambiguity",
+          "target_type": "not_applicable",
+          "outline_quality": "not_assessed",
+          "review_notes": "The imagery is too difficult to resolve confidently even by eye."
+        }
+      ]
+    }
+  ]
+}
