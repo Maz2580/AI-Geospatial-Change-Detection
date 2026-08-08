@@ -1,0 +1,43 @@
+{
+  "reference_source": "City of Melbourne Building Footprints",
+  "reference_license": "CC BY 4.0",
+  "before_year": 2020,
+  "after_year": 2023,
+  "before_footprint_count": 39,
+  "after_footprint_count": 70,
+  "bbox_wgs84": {
+    "west": 144.951,
+    "south": -37.811,
+    "east": 144.953,
+    "north": -37.809
+  },
+  "comparison": {
+    "candidate_count": 10,
+    "class_counts": {
+      "new_building_footprint_candidate": 1,
+      "building_extension_footprint_candidate": 9
+    },
+    "metadata": {
+      "crs": "EPSG:4326",
+      "evidence_role": "object_footprint_refinement",
+      "before_footprint_count": 39,
+      "after_footprint_count": 70,
+      "match_distance_m": 6.0,
+      "match_iou": 0.1,
+      "extension_outside_fraction": 0.25,
+      "before_detector": "city_melbourne_2020_reference",
+      "after_detector": "city_melbourne_2023_reference"
+    },
+    "outputs": {
+      "footprint_candidates": "data\\benchmarks\\melbourne_cbd_west_2020_2023\\reference\\footprint_change_candidates.geojson",
+      "report": "data\\benchmarks\\melbourne_cbd_west_2020_2023\\reference\\footprint_comparison_report.json"
+    }
+  },
+  "outputs": {
+    "before_reference_footprints": "data\\benchmarks\\melbourne_cbd_west_2020_2023\\reference\\city_melbourne_2020_building_footprints.geojson",
+    "after_reference_footprints": "data\\benchmarks\\melbourne_cbd_west_2020_2023\\reference\\city_melbourne_2023_building_footprints.geojson",
+    "footprint_candidates": "data\\benchmarks\\melbourne_cbd_west_2020_2023\\reference\\footprint_change_candidates.geojson",
+    "report": "data\\benchmarks\\melbourne_cbd_west_2020_2023\\reference\\footprint_comparison_report.json"
+  },
+  "warning": "This is a labelled benchmark candidate set, not automatic construction ground truth. Review each reference difference against the matching aerial dates."
+}

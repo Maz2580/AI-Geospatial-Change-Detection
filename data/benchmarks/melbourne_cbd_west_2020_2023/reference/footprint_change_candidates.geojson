@@ -1,0 +1,895 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.95082852,
+              -37.80998124
+            ],
+            [
+              144.95078277,
+              -37.80999674
+            ],
+            [
+              144.95078537,
+              -37.81000156
+            ],
+            [
+              144.95078268,
+              -37.81000247
+            ],
+            [
+              144.95082196,
+              -37.81007462
+            ],
+            [
+              144.9508455,
+              -37.81006664
+            ],
+            [
+              144.95086019,
+              -37.81009392
+            ],
+            [
+              144.95083679,
+              -37.81010185
+            ],
+            [
+              144.95086656,
+              -37.81015653
+            ],
+            [
+              144.95093214,
+              -37.8101343
+            ],
+            [
+              144.9509296,
+              -37.81013517
+            ],
+            [
+              144.95096066,
+              -37.81019244
+            ],
+            [
+              144.95096182,
+              -37.81019205
+            ],
+            [
+              144.95103127,
+              -37.81032103
+            ],
+            [
+              144.9512159,
+              -37.81025845
+            ],
+            [
+              144.95119074,
+              -37.81021171
+            ],
+            [
+              144.95119507,
+              -37.81021024
+            ],
+            [
+              144.9511827,
+              -37.81018726
+            ],
+            [
+              144.95110912,
+              -37.81005062
+            ],
+            [
+              144.95110229,
+              -37.81003792
+            ],
+            [
+              144.95109571,
+              -37.81004012
+            ],
+            [
+              144.95108154,
+              -37.81001381
+            ],
+            [
+              144.95114512,
+              -37.80999227
+            ],
+            [
+              144.95107915,
+              -37.80987015
+            ],
+            [
+              144.95082111,
+              -37.80996748
+            ],
+            [
+              144.95082852,
+              -37.80998124
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "candidate_id": 1,
+        "classification": "building_extension_footprint_candidate",
+        "area_m2": 1577.3,
+        "outside_before_area_m2": 447.8,
+        "before_overlap_fraction": 0.716,
+        "nearest_before_footprint_distance_m": 0.0,
+        "best_before_footprint_iou": 0.608,
+        "matched_before_footprint_ids": [
+          2,
+          21,
+          32
+        ],
+        "evidence_role": "object_footprint_refinement",
+        "footprint_detector": "city_melbourne_2023_reference"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.95093214,
+              -37.8101343
+            ],
+            [
+              144.9509296,
+              -37.81013517
+            ],
+            [
+              144.95096066,
+              -37.81019244
+            ],
+            [
+              144.95096182,
+              -37.81019205
+            ],
+            [
+              144.95103127,
+              -37.81032103
+            ],
+            [
+              144.9512159,
+              -37.81025845
+            ],
+            [
+              144.95119074,
+              -37.81021171
+            ],
+            [
+              144.95119507,
+              -37.81021024
+            ],
+            [
+              144.9511827,
+              -37.81018726
+            ],
+            [
+              144.95110912,
+              -37.81005062
+            ],
+            [
+              144.95110229,
+              -37.81003792
+            ],
+            [
+              144.95109571,
+              -37.81004012
+            ],
+            [
+              144.95108154,
+              -37.81001381
+            ],
+            [
+              144.95114512,
+              -37.80999227
+            ],
+            [
+              144.95107915,
+              -37.80987015
+            ],
+            [
+              144.95082111,
+              -37.80996748
+            ],
+            [
+              144.95083111,
+              -37.80998606
+            ],
+            [
+              144.95078268,
+              -37.81000247
+            ],
+            [
+              144.95082196,
+              -37.81007462
+            ],
+            [
+              144.9508455,
+              -37.81006664
+            ],
+            [
+              144.95086019,
+              -37.81009392
+            ],
+            [
+              144.95083679,
+              -37.81010185
+            ],
+            [
+              144.95086656,
+              -37.81015653
+            ],
+            [
+              144.95093214,
+              -37.8101343
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "candidate_id": 2,
+        "classification": "building_extension_footprint_candidate",
+        "area_m2": 1573.2,
+        "outside_before_area_m2": 443.7,
+        "before_overlap_fraction": 0.718,
+        "nearest_before_footprint_distance_m": 0.0,
+        "best_before_footprint_iou": 0.609,
+        "matched_before_footprint_ids": [
+          2,
+          21,
+          32
+        ],
+        "evidence_role": "object_footprint_refinement",
+        "footprint_detector": "city_melbourne_2023_reference"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.95124017,
+              -37.81028092
+            ],
+            [
+              144.95122815,
+              -37.81025812
+            ],
+            [
+              144.95101727,
+              -37.81032752
+            ],
+            [
+              144.9510292,
+              -37.81035035
+            ],
+            [
+              144.95103663,
+              -37.81036456
+            ],
+            [
+              144.95107044,
+              -37.81042928
+            ],
+            [
+              144.95114064,
+              -37.81056367
+            ],
+            [
+              144.95114517,
+              -37.81057233
+            ],
+            [
+              144.9512015,
+              -37.81068017
+            ],
+            [
+              144.95141452,
+              -37.81061165
+            ],
+            [
+              144.95138384,
+              -37.81055345
+            ],
+            [
+              144.95137121,
+              -37.81052949
+            ],
+            [
+              144.95135173,
+              -37.81049254
+            ],
+            [
+              144.95134197,
+              -37.81047403
+            ],
+            [
+              144.95133628,
+              -37.81046323
+            ],
+            [
+              144.95129548,
+              -37.81047665
+            ],
+            [
+              144.95126278,
+              -37.81041411
+            ],
+            [
+              144.95130335,
+              -37.81040076
+            ],
+            [
+              144.9512986,
+              -37.81039175
+            ],
+            [
+              144.95125728,
+              -37.81031338
+            ],
+            [
+              144.95124765,
+              -37.81029512
+            ],
+            [
+              144.95124017,
+              -37.81028092
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "candidate_id": 3,
+        "classification": "building_extension_footprint_candidate",
+        "area_m2": 1327.5,
+        "outside_before_area_m2": 1327.4,
+        "before_overlap_fraction": 0.0,
+        "nearest_before_footprint_distance_m": 0.0,
+        "best_before_footprint_iou": 0.0,
+        "matched_before_footprint_ids": [
+          13,
+          21,
+          31,
+          32,
+          33
+        ],
+        "evidence_role": "object_footprint_refinement",
+        "footprint_detector": "city_melbourne_2023_reference"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.95124765,
+              -37.81029512
+            ],
+            [
+              144.95124017,
+              -37.81028092
+            ],
+            [
+              144.9510292,
+              -37.81035035
+            ],
+            [
+              144.95103663,
+              -37.81036456
+            ],
+            [
+              144.95107044,
+              -37.81042928
+            ],
+            [
+              144.95114064,
+              -37.81056367
+            ],
+            [
+              144.95114517,
+              -37.81057233
+            ],
+            [
+              144.9512015,
+              -37.81068017
+            ],
+            [
+              144.95141452,
+              -37.81061165
+            ],
+            [
+              144.95138384,
+              -37.81055345
+            ],
+            [
+              144.95137121,
+              -37.81052949
+            ],
+            [
+              144.95135173,
+              -37.81049254
+            ],
+            [
+              144.95134197,
+              -37.81047403
+            ],
+            [
+              144.95133628,
+              -37.81046323
+            ],
+            [
+              144.95129548,
+              -37.81047665
+            ],
+            [
+              144.95126278,
+              -37.81041411
+            ],
+            [
+              144.95130335,
+              -37.81040076
+            ],
+            [
+              144.9512986,
+              -37.81039175
+            ],
+            [
+              144.95125728,
+              -37.81031338
+            ],
+            [
+              144.95124765,
+              -37.81029512
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "candidate_id": 4,
+        "classification": "building_extension_footprint_candidate",
+        "area_m2": 1239.0,
+        "outside_before_area_m2": 1238.9,
+        "before_overlap_fraction": 0.0,
+        "nearest_before_footprint_distance_m": 0.0,
+        "best_before_footprint_iou": 0.0,
+        "matched_before_footprint_ids": [
+          13,
+          21,
+          31,
+          32,
+          33
+        ],
+        "evidence_role": "object_footprint_refinement",
+        "footprint_detector": "city_melbourne_2023_reference"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.95113252,
+              -37.81040885
+            ],
+            [
+              144.9512073,
+              -37.81055189
+            ],
+            [
+              144.95114517,
+              -37.81057233
+            ],
+            [
+              144.9512015,
+              -37.81068017
+            ],
+            [
+              144.95141452,
+              -37.81061165
+            ],
+            [
+              144.95138384,
+              -37.81055345
+            ],
+            [
+              144.95137121,
+              -37.81052949
+            ],
+            [
+              144.95135173,
+              -37.81049254
+            ],
+            [
+              144.95134197,
+              -37.81047403
+            ],
+            [
+              144.95133628,
+              -37.81046323
+            ],
+            [
+              144.95129548,
+              -37.81047665
+            ],
+            [
+              144.95126278,
+              -37.81041411
+            ],
+            [
+              144.95130335,
+              -37.81040076
+            ],
+            [
+              144.9512986,
+              -37.81039175
+            ],
+            [
+              144.95125728,
+              -37.81031338
+            ],
+            [
+              144.95124765,
+              -37.81029512
+            ],
+            [
+              144.95103663,
+              -37.81036456
+            ],
+            [
+              144.95107044,
+              -37.81042928
+            ],
+            [
+              144.95113252,
+              -37.81040885
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "candidate_id": 5,
+        "classification": "building_extension_footprint_candidate",
+        "area_m2": 1020.5,
+        "outside_before_area_m2": 1020.5,
+        "before_overlap_fraction": 0.0,
+        "nearest_before_footprint_distance_m": 0.0,
+        "best_before_footprint_iou": 0.0,
+        "matched_before_footprint_ids": [
+          13,
+          21,
+          31,
+          32,
+          33
+        ],
+        "evidence_role": "object_footprint_refinement",
+        "footprint_detector": "city_melbourne_2023_reference"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.9512986,
+              -37.81039175
+            ],
+            [
+              144.95125728,
+              -37.81031338
+            ],
+            [
+              144.95124991,
+              -37.81031581
+            ],
+            [
+              144.95124265,
+              -37.81030192
+            ],
+            [
+              144.95110931,
+              -37.81034579
+            ],
+            [
+              144.95111632,
+              -37.81035921
+            ],
+            [
+              144.951108,
+              -37.81036195
+            ],
+            [
+              144.95123317,
+              -37.81060135
+            ],
+            [
+              144.95124084,
+              -37.81059883
+            ],
+            [
+              144.95124734,
+              -37.81061126
+            ],
+            [
+              144.95137869,
+              -37.81056804
+            ],
+            [
+              144.95137293,
+              -37.81055704
+            ],
+            [
+              144.95138384,
+              -37.81055345
+            ],
+            [
+              144.95137121,
+              -37.81052949
+            ],
+            [
+              144.95135173,
+              -37.81049254
+            ],
+            [
+              144.95134197,
+              -37.81047403
+            ],
+            [
+              144.95130114,
+              -37.81048746
+            ],
+            [
+              144.95125807,
+              -37.81040509
+            ],
+            [
+              144.9512986,
+              -37.81039175
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "candidate_id": 6,
+        "classification": "building_extension_footprint_candidate",
+        "area_m2": 659.4,
+        "outside_before_area_m2": 659.4,
+        "before_overlap_fraction": 0.0,
+        "nearest_before_footprint_distance_m": 0.0,
+        "best_before_footprint_iou": 0.0,
+        "matched_before_footprint_ids": [
+          21,
+          31
+        ],
+        "evidence_role": "object_footprint_refinement",
+        "footprint_detector": "city_melbourne_2023_reference"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.95121891,
+              -37.80900818
+            ],
+            [
+              144.95105775,
+              -37.80907882
+            ],
+            [
+              144.95107614,
+              -37.80910523
+            ],
+            [
+              144.9512373,
+              -37.80903459
+            ],
+            [
+              144.95121891,
+              -37.80900818
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "candidate_id": 7,
+        "classification": "new_building_footprint_candidate",
+        "area_m2": 87.1,
+        "outside_before_area_m2": 87.1,
+        "before_overlap_fraction": 0.0,
+        "nearest_before_footprint_distance_m": 6.2,
+        "best_before_footprint_iou": 0.0,
+        "matched_before_footprint_ids": [],
+        "evidence_role": "object_footprint_refinement",
+        "footprint_detector": "city_melbourne_2023_reference"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.95285893,
+              -37.81083503
+            ],
+            [
+              144.95295446,
+              -37.81080707
+            ],
+            [
+              144.95294047,
+              -37.81077699
+            ],
+            [
+              144.95284495,
+              -37.81080496
+            ],
+            [
+              144.95285893,
+              -37.81083503
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "candidate_id": 8,
+        "classification": "building_extension_footprint_candidate",
+        "area_m2": 51.2,
+        "outside_before_area_m2": 51.2,
+        "before_overlap_fraction": 0.0,
+        "nearest_before_footprint_distance_m": 0.7,
+        "best_before_footprint_iou": 0.0,
+        "matched_before_footprint_ids": [
+          9
+        ],
+        "evidence_role": "object_footprint_refinement",
+        "footprint_detector": "city_melbourne_2023_reference"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.95170731,
+              -37.80932259
+            ],
+            [
+              144.95169238,
+              -37.80930168
+            ],
+            [
+              144.95166959,
+              -37.80926978
+            ],
+            [
+              144.95164713,
+              -37.80923834
+            ],
+            [
+              144.95161712,
+              -37.80925183
+            ],
+            [
+              144.95165141,
+              -37.80929983
+            ],
+            [
+              144.95166226,
+              -37.80929495
+            ],
+            [
+              144.95168815,
+              -37.8093312
+            ],
+            [
+              144.95170731,
+              -37.80932259
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "candidate_id": 9,
+        "classification": "building_extension_footprint_candidate",
+        "area_m2": 44.2,
+        "outside_before_area_m2": 44.2,
+        "before_overlap_fraction": 0.0,
+        "nearest_before_footprint_distance_m": 0.0,
+        "best_before_footprint_iou": 0.0,
+        "matched_before_footprint_ids": [
+          4,
+          5,
+          24,
+          29,
+          30,
+          35
+        ],
+        "evidence_role": "object_footprint_refinement",
+        "footprint_detector": "city_melbourne_2023_reference"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.95116759,
+              -37.80918885
+            ],
+            [
+              144.9511969,
+              -37.80917604
+            ],
+            [
+              144.95116885,
+              -37.80913564
+            ],
+            [
+              144.95113955,
+              -37.80914845
+            ],
+            [
+              144.95116759,
+              -37.80918885
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "candidate_id": 10,
+        "classification": "building_extension_footprint_candidate",
+        "area_m2": 24.2,
+        "outside_before_area_m2": 24.2,
+        "before_overlap_fraction": 0.0,
+        "nearest_before_footprint_distance_m": 3.5,
+        "best_before_footprint_iou": 0.0,
+        "matched_before_footprint_ids": [
+          4,
+          5,
+          29,
+          35
+        ],
+        "evidence_role": "object_footprint_refinement",
+        "footprint_detector": "city_melbourne_2023_reference"
+      }
+    }
+  ],
+  "metadata": {
+    "crs": "EPSG:4326",
+    "evidence_role": "object_footprint_refinement",
+    "before_footprint_count": 39,
+    "after_footprint_count": 70,
+    "match_distance_m": 6.0,
+    "match_iou": 0.1,
+    "extension_outside_fraction": 0.25,
+    "before_detector": "city_melbourne_2020_reference",
+    "after_detector": "city_melbourne_2023_reference"
+  }
+}
