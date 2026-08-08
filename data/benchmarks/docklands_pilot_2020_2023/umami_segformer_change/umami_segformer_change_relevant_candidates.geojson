@@ -1,0 +1,1036 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.945336,
+              -37.816783
+            ],
+            [
+              144.945347,
+              -37.816808
+            ],
+            [
+              144.945334,
+              -37.816812
+            ],
+            [
+              144.94536,
+              -37.816871
+            ],
+            [
+              144.945367,
+              -37.816888
+            ],
+            [
+              144.94524,
+              -37.816923
+            ],
+            [
+              144.945233,
+              -37.816905
+            ],
+            [
+              144.945067,
+              -37.816951
+            ],
+            [
+              144.945042,
+              -37.816891
+            ],
+            [
+              144.945031,
+              -37.816867
+            ],
+            [
+              144.945336,
+              -37.816783
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "score": 0.377,
+        "area_m2": 285.2,
+        "rank": 1,
+        "overlap_pct": 93.6,
+        "kind": "structure_change",
+        "label": "Change on an existing building",
+        "greenness": [
+          0.011,
+          -0.027
+        ],
+        "clip_type": "new building",
+        "clip_confidence": 0.977,
+        "relevant": true,
+        "vlm_verdict": "construction",
+        "vlm_note": "An open paved plaza in the before image was replaced by a large white-roofed building in the after image.",
+        "vlm_type": "new building",
+        "sam_refined": true,
+        "conformance": {
+          "parcel_spi": "2102\\PP5514C",
+          "parcel_geom": {
+            "type": "MultiPolygon",
+            "coordinates": [
+              [
+                [
+                  [
+                    144.945586,
+                    -37.817342
+                  ],
+                  [
+                    144.945264,
+                    -37.817431
+                  ],
+                  [
+                    144.945016,
+                    -37.816863
+                  ],
+                  [
+                    144.945338,
+                    -37.816775
+                  ],
+                  [
+                    144.945586,
+                    -37.817342
+                  ]
+                ]
+              ]
+            ]
+          },
+          "address": "131-141 HARBOUR ESPLANADE DOCKLANDS 3008",
+          "zone_code": "DZ2",
+          "zone_description": "DOCKLANDS ZONE - SCHEDULE 2",
+          "overlays": [
+            "DDO",
+            "DPO",
+            "HO",
+            "LSIO",
+            "PO"
+          ],
+          "call": "unpermitted_construction",
+          "permit_required": true,
+          "severity": "high",
+          "reasons": [
+            "Change to an existing building (extension or works).",
+            "Design and Development Overlay applies \u2014 a planning permit is required for buildings and works.",
+            "Development Plan Overlay applies \u2014 a planning permit is required for buildings and works.",
+            "Heritage Overlay applies \u2014 a planning permit is required for buildings and works.",
+            "Land Subject to Inundation Overlay applies \u2014 a planning permit is required for buildings and works (flood/inundation)."
+          ],
+          "refer_to": "Council planning permit register / VicPlan (planning.vic.gov.au)",
+          "report_seed": "Possible unpermitted construction. AI assessment: An open paved plaza in the before image was replaced by a large white-roofed building in the after image. 131-141 HARBOUR ESPLANADE DOCKLANDS 3008; zone DZ2 (DOCKLANDS ZONE - SCHEDULE 2); overlays: Design and Development Overlay, Development Plan Overlay, Heritage Overlay, Land Subject to Inundation Overlay, PO. A planning permit appears required \u2014 verify against the Council planning permit register / VicPlan (planning.vic.gov.au)."
+        },
+        "prop_propnum": "707230",
+        "footprint_source": "geoscape",
+        "on_record": true,
+        "ref_overlap": 83.5,
+        "roof_height": 5.92,
+        "levels": 1,
+        "ref_area_m2": 296.21,
+        "footprint_note": "Matches a Geoscape building footprint (83.5% overlap).",
+        "footprint_adopted": true,
+        "footprint_clipped": true,
+        "candidate_id": 1,
+        "classification": "new building",
+        "candidate_source": "umami",
+        "requested_detector": "segformer",
+        "analysis_mode": "change"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.94540738255034,
+              -37.81701843220339
+            ],
+            [
+              144.94535503355704,
+              -37.8170247881356
+            ],
+            [
+              144.9453563758389,
+              -37.8170279661017
+            ],
+            [
+              144.945377852349,
+              -37.81702902542373
+            ],
+            [
+              144.94537919463087,
+              -37.81703644067797
+            ],
+            [
+              144.94537382550334,
+              -37.817043855932205
+            ],
+            [
+              144.94536040268457,
+              -37.81704491525424
+            ],
+            [
+              144.9453577181208,
+              -37.81706080508475
+            ],
+            [
+              144.94535369127516,
+              -37.817043855932205
+            ],
+            [
+              144.94534161073824,
+              -37.81705550847458
+            ],
+            [
+              144.9453389261745,
+              -37.817032203389836
+            ],
+            [
+              144.94533355704698,
+              -37.817032203389836
+            ],
+            [
+              144.94533624161073,
+              -37.81702584745763
+            ],
+            [
+              144.94533087248323,
+              -37.81701737288136
+            ],
+            [
+              144.94540335570468,
+              -37.81700995762712
+            ],
+            [
+              144.94540738255034,
+              -37.81701843220339
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "score": 0.339,
+        "area_m2": 35.6,
+        "rank": 3,
+        "overlap_pct": 0.0,
+        "kind": "new_or_cleared",
+        "label": "New construction or cleared land",
+        "greenness": [
+          0.018,
+          -0.093
+        ],
+        "clip_type": "concrete / paving",
+        "clip_confidence": 0.7,
+        "relevant": true,
+        "vlm_verdict": "construction",
+        "vlm_note": "A large white structure/covering present in the before image was removed, exposing the paved ground in the after image.",
+        "vlm_type": "cleared / demolition",
+        "sam_refined": true,
+        "conformance": {
+          "parcel_spi": "2102\\PP5514C",
+          "parcel_geom": {
+            "type": "MultiPolygon",
+            "coordinates": [
+              [
+                [
+                  [
+                    144.945586,
+                    -37.817342
+                  ],
+                  [
+                    144.945264,
+                    -37.817431
+                  ],
+                  [
+                    144.945016,
+                    -37.816863
+                  ],
+                  [
+                    144.945338,
+                    -37.816775
+                  ],
+                  [
+                    144.945586,
+                    -37.817342
+                  ]
+                ]
+              ]
+            ]
+          },
+          "address": "131-141 HARBOUR ESPLANADE DOCKLANDS 3008",
+          "zone_code": "DZ2",
+          "zone_description": "DOCKLANDS ZONE - SCHEDULE 2",
+          "overlays": [
+            "DDO",
+            "DPO",
+            "HO",
+            "LSIO",
+            "PO"
+          ],
+          "call": "unlicensed_change",
+          "permit_required": true,
+          "severity": "high",
+          "reasons": [
+            "Hard surface / paving change (new impervious surface).",
+            "Design and Development Overlay applies \u2014 a planning permit is required for buildings and works.",
+            "Development Plan Overlay applies \u2014 a planning permit is required for buildings and works.",
+            "Heritage Overlay applies \u2014 a planning permit is required for buildings and works.",
+            "Land Subject to Inundation Overlay applies \u2014 a planning permit is required for buildings and works (flood/inundation)."
+          ],
+          "refer_to": "Council planning permit register / VicPlan (planning.vic.gov.au)",
+          "report_seed": "Possible unlicensed land-use / surface change. AI assessment: A large white structure/covering present in the before image was removed, exposing the paved ground in the after image. 131-141 HARBOUR ESPLANADE DOCKLANDS 3008; zone DZ2 (DOCKLANDS ZONE - SCHEDULE 2); overlays: Design and Development Overlay, Development Plan Overlay, Heritage Overlay, Land Subject to Inundation Overlay, PO. A planning permit appears required \u2014 verify against the Council planning permit register / VicPlan (planning.vic.gov.au)."
+        },
+        "prop_propnum": "707230",
+        "footprint_source": "ai_detected",
+        "on_record": false,
+        "footprint_unmapped": true,
+        "footprint_note": "No matching footprint in reference data (Geoscape / OpenStreetMap) \u2014 AI-detected outline.",
+        "footprint_clipped": true,
+        "candidate_id": 3,
+        "classification": "cleared / demolition",
+        "candidate_source": "umami",
+        "requested_detector": "segformer",
+        "analysis_mode": "change"
+      }
+    }
+  ],
+  "metadata": {
+    "candidate_source": "umami",
+    "requested_detector": "segformer",
+    "analysis_mode": "change",
+    "pipeline_summary": {
+      "threshold": 0.325,
+      "threshold_low": 0.325,
+      "count": 3,
+      "grid": [
+        29,
+        46
+      ],
+      "upscale": 8,
+      "fused_irmad": false,
+      "attention_regions": [
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  144.94470135869565,
+                  -37.81688556034483
+                ],
+                [
+                  144.94470135869565,
+                  -37.8170989224138
+                ],
+                [
+                  144.94486440217392,
+                  -37.8170989224138
+                ],
+                [
+                  144.94485896739133,
+                  -37.81707521551724
+                ],
+                [
+                  144.94487798913045,
+                  -37.817047198275866
+                ],
+                [
+                  144.94483722826087,
+                  -37.81697607758621
+                ],
+                [
+                  144.9447910326087,
+                  -37.81695668103448
+                ],
+                [
+                  144.94475027173914,
+                  -37.8168963362069
+                ],
+                [
+                  144.94470135869565,
+                  -37.81688556034483
+                ]
+              ]
+            ]
+          },
+          "properties": {
+            "score": 0.287,
+            "area_m2": 264.4,
+            "rank": 2,
+            "kind": "attention",
+            "label": "Possible surface change \u2014 review",
+            "uncovered_m2": 87.3
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  144.94544592391304,
+                  -37.816601077586206
+                ],
+                [
+                  144.94544320652173,
+                  -37.81666573275862
+                ],
+                [
+                  144.94550570652174,
+                  -37.81667219827586
+                ],
+                [
+                  144.94546222826085,
+                  -37.81672392241379
+                ],
+                [
+                  144.94546766304347,
+                  -37.81679504310345
+                ],
+                [
+                  144.9454839673913,
+                  -37.81680150862069
+                ],
+                [
+                  144.94556548913042,
+                  -37.81671099137931
+                ],
+                [
+                  144.94552201086955,
+                  -37.816680818965516
+                ],
+                [
+                  144.94552201086955,
+                  -37.81665280172414
+                ],
+                [
+                  144.94549211956522,
+                  -37.816659267241384
+                ],
+                [
+                  144.94547581521738,
+                  -37.81664849137931
+                ],
+                [
+                  144.94551929347824,
+                  -37.81663340517242
+                ],
+                [
+                  144.94551657608696,
+                  -37.816601077586206
+                ],
+                [
+                  144.94544592391304,
+                  -37.816601077586206
+                ]
+              ]
+            ]
+          },
+          "properties": {
+            "score": 0.151,
+            "area_m2": 120.5,
+            "rank": 3,
+            "kind": "attention",
+            "label": "Possible surface change \u2014 review",
+            "uncovered_m2": 120.5
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  144.94557092391304,
+                  -37.81674978448276
+                ],
+                [
+                  144.94556277173913,
+                  -37.81679073275862
+                ],
+                [
+                  144.94553016304346,
+                  -37.81679288793104
+                ],
+                [
+                  144.94552744565217,
+                  -37.81680797413793
+                ],
+                [
+                  144.94557364130435,
+                  -37.816831681034486
+                ],
+                [
+                  144.94559266304347,
+                  -37.81690280172414
+                ],
+                [
+                  144.94562527173912,
+                  -37.816917887931034
+                ],
+                [
+                  144.94564701086955,
+                  -37.81690495689656
+                ],
+                [
+                  144.94569864130435,
+                  -37.816913577586206
+                ],
+                [
+                  144.94569864130435,
+                  -37.81688987068966
+                ],
+                [
+                  144.94564157608696,
+                  -37.816892025862074
+                ],
+                [
+                  144.94563070652174,
+                  -37.81686831896552
+                ],
+                [
+                  144.94565788043477,
+                  -37.81685107758621
+                ],
+                [
+                  144.94564972826086,
+                  -37.816814439655175
+                ],
+                [
+                  144.9456116847826,
+                  -37.816797198275864
+                ],
+                [
+                  144.94560625,
+                  -37.816756250000005
+                ],
+                [
+                  144.94557092391304,
+                  -37.81674978448276
+                ]
+              ]
+            ]
+          },
+          "properties": {
+            "score": 0.147,
+            "area_m2": 114.8,
+            "rank": 4,
+            "kind": "attention",
+            "label": "Possible surface change \u2014 review",
+            "uncovered_m2": 114.8
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  144.94559538043478,
+                  -37.81694375
+                ],
+                [
+                  144.94558722826085,
+                  -37.817006250000006
+                ],
+                [
+                  144.94559809782606,
+                  -37.81701702586207
+                ],
+                [
+                  144.94562527173912,
+                  -37.81702349137932
+                ],
+                [
+                  144.94566059782608,
+                  -37.81700193965518
+                ],
+                [
+                  144.94569864130435,
+                  -37.81700193965518
+                ],
+                [
+                  144.94569864130435,
+                  -37.816973922413794
+                ],
+                [
+                  144.94564429347824,
+                  -37.81696961206897
+                ],
+                [
+                  144.9456144021739,
+                  -37.81694375
+                ],
+                [
+                  144.94559538043478,
+                  -37.81694375
+                ]
+              ]
+            ]
+          },
+          "properties": {
+            "score": 0.152,
+            "area_m2": 56.1,
+            "rank": 5,
+            "kind": "attention",
+            "label": "Possible surface change \u2014 review",
+            "uncovered_m2": 56.1
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  144.94543020134228,
+                  -37.81707139830509
+                ],
+                [
+                  144.94541275167785,
+                  -37.81707033898305
+                ],
+                [
+                  144.9454154362416,
+                  -37.81705550847458
+                ],
+                [
+                  144.94539261744967,
+                  -37.81705762711865
+                ],
+                [
+                  144.94541677852348,
+                  -37.81709894067797
+                ],
+                [
+                  144.94533624161073,
+                  -37.81709894067797
+                ],
+                [
+                  144.9453,
+                  -37.81705868644068
+                ],
+                [
+                  144.94525838926174,
+                  -37.81707033898305
+                ],
+                [
+                  144.94525973154362,
+                  -37.817086228813565
+                ],
+                [
+                  144.94523288590605,
+                  -37.81709894067797
+                ],
+                [
+                  144.9451157938573,
+                  -37.81709167259768
+                ],
+                [
+                  144.945114787193,
+                  -37.81708937190936
+                ],
+                [
+                  144.9451322147651,
+                  -37.81706186440678
+                ],
+                [
+                  144.9452919463087,
+                  -37.8170216101695
+                ],
+                [
+                  144.94529463087247,
+                  -37.817038559322036
+                ],
+                [
+                  144.94537248322146,
+                  -37.81701419491526
+                ],
+                [
+                  144.94537114093959,
+                  -37.81703326271187
+                ],
+                [
+                  144.94539530201342,
+                  -37.81704491525424
+                ],
+                [
+                  144.94543959731544,
+                  -37.81703644067797
+                ],
+                [
+                  144.94543020134228,
+                  -37.81707139830509
+                ]
+              ]
+            ]
+          },
+          "properties": {
+            "kind": "paving",
+            "label": "New paved surface",
+            "detector": "segformer_paved",
+            "relevant": true,
+            "area_m2": 148.5,
+            "parcel": "431511257",
+            "review": true
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  144.94543020134228,
+                  -37.81707139830509
+                ],
+                [
+                  144.94541275167785,
+                  -37.81707033898305
+                ],
+                [
+                  144.9454154362416,
+                  -37.81705550847458
+                ],
+                [
+                  144.94539261744967,
+                  -37.81705762711865
+                ],
+                [
+                  144.94541677852348,
+                  -37.81709894067797
+                ],
+                [
+                  144.94533624161073,
+                  -37.81709894067797
+                ],
+                [
+                  144.9453,
+                  -37.81705868644068
+                ],
+                [
+                  144.94525838926174,
+                  -37.81707033898305
+                ],
+                [
+                  144.94525973154362,
+                  -37.817086228813565
+                ],
+                [
+                  144.94523288590605,
+                  -37.81709894067797
+                ],
+                [
+                  144.9451157938573,
+                  -37.81709167259768
+                ],
+                [
+                  144.945114787193,
+                  -37.81708937190936
+                ],
+                [
+                  144.9451322147651,
+                  -37.81706186440678
+                ],
+                [
+                  144.9452919463087,
+                  -37.8170216101695
+                ],
+                [
+                  144.94529463087247,
+                  -37.817038559322036
+                ],
+                [
+                  144.94537248322146,
+                  -37.81701419491526
+                ],
+                [
+                  144.94537114093959,
+                  -37.81703326271187
+                ],
+                [
+                  144.94539530201342,
+                  -37.81704491525424
+                ],
+                [
+                  144.94543959731544,
+                  -37.81703644067797
+                ],
+                [
+                  144.94543020134228,
+                  -37.81707139830509
+                ]
+              ]
+            ]
+          },
+          "properties": {
+            "kind": "paving",
+            "label": "New paved surface",
+            "detector": "segformer_paved",
+            "relevant": true,
+            "area_m2": 148.5,
+            "parcel": "420623451",
+            "review": true
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  144.94543020134228,
+                  -37.81707139830509
+                ],
+                [
+                  144.94541275167785,
+                  -37.81707033898305
+                ],
+                [
+                  144.9454154362416,
+                  -37.81705550847458
+                ],
+                [
+                  144.94539261744967,
+                  -37.81705762711865
+                ],
+                [
+                  144.94541677852348,
+                  -37.81709894067797
+                ],
+                [
+                  144.94533624161073,
+                  -37.81709894067797
+                ],
+                [
+                  144.9453,
+                  -37.81705868644068
+                ],
+                [
+                  144.94525838926174,
+                  -37.81707033898305
+                ],
+                [
+                  144.94525973154362,
+                  -37.817086228813565
+                ],
+                [
+                  144.94523288590605,
+                  -37.81709894067797
+                ],
+                [
+                  144.9451157938573,
+                  -37.81709167259768
+                ],
+                [
+                  144.945114787193,
+                  -37.81708937190936
+                ],
+                [
+                  144.9451322147651,
+                  -37.81706186440678
+                ],
+                [
+                  144.9452919463087,
+                  -37.8170216101695
+                ],
+                [
+                  144.94529463087247,
+                  -37.817038559322036
+                ],
+                [
+                  144.94537248322146,
+                  -37.81701419491526
+                ],
+                [
+                  144.94537114093959,
+                  -37.81703326271187
+                ],
+                [
+                  144.94539530201342,
+                  -37.81704491525424
+                ],
+                [
+                  144.94543959731544,
+                  -37.81703644067797
+                ],
+                [
+                  144.94543020134228,
+                  -37.81707139830509
+                ]
+              ]
+            ]
+          },
+          "properties": {
+            "kind": "paving",
+            "label": "New paved surface",
+            "detector": "segformer_paved",
+            "relevant": true,
+            "area_m2": 148.5,
+            "parcel": "420624333",
+            "review": true
+          }
+        }
+      ],
+      "aoi_tiles": 1,
+      "fused_buildings": 3,
+      "fuse_detector": "segformer",
+      "enriched": true,
+      "buildings": 2,
+      "paved_review": 3,
+      "imagery_zoom": 20,
+      "clip_typed": true,
+      "relevant_count": 2,
+      "vlm_backend": "anthropic",
+      "vlm_checked": 6,
+      "sam_refined": 2,
+      "conformance": {
+        "checked": 2,
+        "by_call": {
+          "unpermitted_construction": 1,
+          "unlicensed_change": 1
+        },
+        "permit_required": 2
+      },
+      "footprint_recon": {
+        "geoscape": 1,
+        "osm": 0,
+        "ai_detected": 1,
+        "unmapped": 1,
+        "geoscape_available": 1,
+        "properties_available": 16
+      },
+      "rollup": {
+        "properties": [
+          {
+            "parcel_spi": "2102\\PP5514C",
+            "address": "131-141 HARBOUR ESPLANADE DOCKLANDS 3008",
+            "zone_code": "DZ2",
+            "zone_description": "DOCKLANDS ZONE - SCHEDULE 2",
+            "overlays": [
+              "DDO",
+              "DPO",
+              "HO",
+              "LSIO",
+              "PO"
+            ],
+            "parcel_geom": {
+              "type": "MultiPolygon",
+              "coordinates": [
+                [
+                  [
+                    [
+                      144.945586,
+                      -37.817342
+                    ],
+                    [
+                      144.945264,
+                      -37.817431
+                    ],
+                    [
+                      144.945016,
+                      -37.816863
+                    ],
+                    [
+                      144.945338,
+                      -37.816775
+                    ],
+                    [
+                      144.945586,
+                      -37.817342
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "change_count": 2,
+            "feature_ranks": [
+              1,
+              3
+            ],
+            "changes": [
+              {
+                "rank": 1,
+                "type": "new building",
+                "call": "unpermitted_construction",
+                "severity": "high",
+                "permit_required": true,
+                "area_m2": 285.2,
+                "score": 0.377,
+                "footprint_source": "geoscape",
+                "on_record": true,
+                "unmapped": false,
+                "roof_height": 5.92,
+                "levels": 1
+              },
+              {
+                "rank": 3,
+                "type": "cleared / demolition",
+                "call": "unlicensed_change",
+                "severity": "high",
+                "permit_required": true,
+                "area_m2": 35.6,
+                "score": 0.339,
+                "footprint_source": "ai_detected",
+                "on_record": false,
+                "unmapped": true,
+                "roof_height": null,
+                "levels": null
+              }
+            ],
+            "primary": {
+              "rank": 1,
+              "type": "new building",
+              "call": "unpermitted_construction",
+              "severity": "high",
+              "permit_required": true,
+              "area_m2": 285.2,
+              "score": 0.377,
+              "footprint_source": "geoscape",
+              "on_record": true,
+              "unmapped": false,
+              "roof_height": 5.92,
+              "levels": 1
+            },
+            "severity": "high",
+            "permit_required": true,
+            "calls": {
+              "unpermitted_construction": 1,
+              "unlicensed_change": 1
+            },
+            "unmapped_count": 1,
+            "report_seed": "131-141 HARBOUR ESPLANADE DOCKLANDS 3008: 2 changes detected. Primary: possible unpermitted construction \u2014 new building. zone DZ2; overlays DDO, DPO, HO, LSIO, PO. A planning permit appears required \u2014 verify against the register."
+          }
+        ],
+        "count": 1
+      },
+      "z": 20,
+      "tiles": 6,
+      "shift": {
+        "dx": 2.4760423597987824,
+        "dy": -1.8017935244242267,
+        "response": 0.3234883131239149
+      },
+      "shift_applied": {
+        "dx": 2,
+        "dy": -2,
+        "response": 0.3234883131239149
+      }
+    }
+  }
+}

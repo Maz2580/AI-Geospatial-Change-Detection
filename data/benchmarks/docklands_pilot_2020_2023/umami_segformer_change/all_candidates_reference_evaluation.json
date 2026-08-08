@@ -1,0 +1,29 @@
+{
+  "human_confirmed_reference_count": 1,
+  "detected_reference_count": 1,
+  "reference_recall": 1.0,
+  "prediction_candidate_count": 6,
+  "prediction_ids_matching_real_reference": [
+    1,
+    6
+  ],
+  "unmatched_prediction_ids_requiring_review": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "prediction_ids_matching_rejected_reference": [],
+  "match_distance_m": 8.0,
+  "per_reference": [
+    {
+      "reference_candidate_id": 1,
+      "matched_prediction_ids": [
+        1,
+        6
+      ],
+      "detected": true
+    }
+  ],
+  "warning": "Unmatched predictions are not called false positives because this compact reference set is incomplete outside its labelled differences."
+}
