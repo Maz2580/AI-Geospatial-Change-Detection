@@ -1,0 +1,22 @@
+{
+  "dataset": "melbourne_cbd_west_2020_2023",
+  "source_review": "data/output/melbourne_cbd_west_2020_2023_reference_review/review/index.html",
+  "source_reference": "data/benchmarks/melbourne_cbd_west_2020_2023/reference/footprint_change_candidates.geojson",
+  "source_imagery": {
+    "before": "2020-11-08",
+    "after": "2023-11-10"
+  },
+  "label_definition": "real_visible_change means the reference candidate corresponds to a visible permanent change in the fixed Nearmap pair. Reference outline geometry is imperfect and is not a pixel-perfect building label.",
+  "labels": [
+    {"reference_candidate_id": 1, "assessment": "real_visible_change", "outline_quality": "imperfect"},
+    {"reference_candidate_id": 2, "assessment": "real_visible_change", "outline_quality": "imperfect"},
+    {"reference_candidate_id": 3, "assessment": "real_visible_change", "outline_quality": "imperfect"},
+    {"reference_candidate_id": 4, "assessment": "real_visible_change", "outline_quality": "imperfect"},
+    {"reference_candidate_id": 5, "assessment": "real_visible_change", "outline_quality": "imperfect"},
+    {"reference_candidate_id": 6, "assessment": "real_visible_change", "outline_quality": "imperfect"},
+    {"reference_candidate_id": 7, "assessment": "real_visible_change", "outline_quality": "imperfect"},
+    {"reference_candidate_id": 8, "assessment": "mapping_only_or_not_visible"},
+    {"reference_candidate_id": 9, "assessment": "mapping_only_or_not_visible"},
+    {"reference_candidate_id": 10, "assessment": "mapping_only_or_not_visible"}
+  ]
+}

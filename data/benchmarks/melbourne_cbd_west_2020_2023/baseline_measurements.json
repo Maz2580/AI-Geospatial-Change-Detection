@@ -1,0 +1,39 @@
+{
+  "benchmark": "melbourne_cbd_west_2020_2023",
+  "reference_candidates": "data/benchmarks/melbourne_cbd_west_2020_2023/reference/footprint_change_candidates.geojson",
+  "human_labels": "data/labels/melbourne_cbd_west_2020_2023_reference_review_labels.json",
+  "human_confirmed_visible_change_count": 7,
+  "rejected_mapping_only_or_not_visible_count": 3,
+  "measurements": [
+    {
+      "name": "rgb_strict_default",
+      "parameters": {
+        "change_percentile": 98.5,
+        "min_area_m2": 20.0,
+        "morphology_m": 0.6,
+        "shadow_policy": "defer"
+      },
+      "prediction_candidate_count": 0,
+      "detected_reference_count": 0,
+      "reference_recall": 0.0,
+      "interpretation": "The strict default defers the dense CBD scene as shadow-uncertain and misses every confirmed reference change."
+    },
+    {
+      "name": "rgb_high_recall_experimental",
+      "parameters": {
+        "change_percentile": 96.0,
+        "min_area_m2": 10.0,
+        "morphology_m": 0.2,
+        "shadow_policy": "disabled_for_measurement"
+      },
+      "prediction_candidate_count": 22,
+      "detected_reference_count": 7,
+      "reference_recall": 1.0,
+      "unmatched_prediction_count_requiring_review": 10,
+      "prediction_count_matching_rejected_reference": 1,
+      "interpretation": "The configuration recovers all confirmed benchmark changes, but is not operationally accepted: fragments and additional candidates need shadow-risk annotation, grouping, and a separate hold-out check."
+    }
+  ],
+  "evaluation_match_distance_m": 8.0,
+  "warning": "This benchmark has only seven human-confirmed changes. It can guide exploration but cannot by itself set a production threshold."
+}
