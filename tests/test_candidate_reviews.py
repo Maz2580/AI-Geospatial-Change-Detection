@@ -41,6 +41,23 @@ class CandidateReviewTests(unittest.TestCase):
         self.assertEqual(report["reviewed_candidate_count"], 2)
         self.assertEqual(report["assessment_counts"]["confirmed_target_change"], 1)
         self.assertEqual(report["assessment_counts"]["temporary_or_movable_change"], 1)
+        self.assertEqual(report["confirmed_target_candidate_fraction_lower_bound"], 0.5)
+        self.assertEqual(report["confirmed_target_candidate_fraction_upper_bound"], 0.5)
+
+    def test_inconclusive_candidate_expands_only_the_upper_target_bound(self) -> None:
+        document = _review()
+        document["model_reviews"][0]["labels"].append(
+            {
+                "candidate_id": 3,
+                "assessment": "inconclusive_due_image_ambiguity",
+                "target_type": "not_applicable",
+                "outline_quality": "not_assessed",
+                "review_notes": "Image quality does not permit a decision.",
+            }
+        )
+        report = validate_candidate_review_document(document)
+        self.assertEqual(report["confirmed_target_candidate_fraction_lower_bound"], 0.3333)
+        self.assertEqual(report["confirmed_target_candidate_fraction_upper_bound"], 0.6667)
 
     def test_confirmed_target_requires_outline_assessment(self) -> None:
         document = _review()

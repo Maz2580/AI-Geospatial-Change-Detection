@@ -26,6 +26,19 @@ TARGET_TYPES = {"new_building", "building_extension", "demolition"}
 OUTLINE_QUALITIES = {"good", "acceptable", "poor", "not_assessed"}
 
 
+def _target_fraction_range(counts: dict[str, int], total: int) -> tuple[float, float]:
+    """Return the confirmed-only and ambiguity-inclusive target rates.
+
+    These rates describe reviewed model candidates, not full-scene precision or
+    recall. The upper bound assumes every visually inconclusive candidate is a
+    target construction, which is intentionally conservative.
+    """
+    return (
+        round(counts["confirmed_target_change"] / total, 4),
+        round((counts["confirmed_target_change"] + counts["inconclusive_due_image_ambiguity"]) / total, 4),
+    )
+
+
 def validate_candidate_review_document(document: dict[str, Any]) -> dict[str, Any]:
     """Validate a human review while retaining non-target detections honestly."""
     if document.get("schema_version") != 1:
@@ -80,12 +93,29 @@ def validate_candidate_review_document(document: dict[str, Any]) -> dict[str, An
             seen_candidates.add(candidate_id)
             counts[assessment] += 1
             totals[assessment] += 1
-        model_summaries.append({"model_id": model_id, "reviewed_candidate_count": len(labels), "assessment_counts": counts})
+        reviewed_count = len(labels)
+        lower_bound, upper_bound = _target_fraction_range(counts, reviewed_count)
+        model_summaries.append(
+            {
+                "model_id": model_id,
+                "reviewed_candidate_count": reviewed_count,
+                "assessment_counts": counts,
+                "clear_non_target_candidate_count": counts["temporary_or_movable_change"] + counts["not_target_change"],
+                "confirmed_target_candidate_fraction_lower_bound": lower_bound,
+                "confirmed_target_candidate_fraction_upper_bound": upper_bound,
+            }
+        )
+    reviewed_candidate_count = sum(item["reviewed_candidate_count"] for item in model_summaries)
+    lower_bound, upper_bound = _target_fraction_range(totals, reviewed_candidate_count)
     return {
         "case_id": document["case_id"],
         "model_review_count": len(model_reviews),
-        "reviewed_candidate_count": sum(item["reviewed_candidate_count"] for item in model_summaries),
+        "reviewed_candidate_count": reviewed_candidate_count,
         "assessment_counts": totals,
+        "clear_non_target_candidate_count": totals["temporary_or_movable_change"] + totals["not_target_change"],
+        "confirmed_target_candidate_fraction_lower_bound": lower_bound,
+        "confirmed_target_candidate_fraction_upper_bound": upper_bound,
+        "warning": "Target-candidate fractions are based only on the reviewed submitted candidates. They are not whole-scene precision or recall.",
         "models": model_summaries,
     }
 

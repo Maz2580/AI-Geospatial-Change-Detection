@@ -21,6 +21,13 @@ $env:PYTHONPATH = "src"
   --review data\benchmarks\docklands_pilot_2020_2023\umami_candidate_human_review.json
 ```
 
+The summary reports a lower and upper bound for the fraction of submitted
+candidates that are target construction: the lower bound counts only confirmed
+targets; the upper bound additionally assumes every image-ambiguous candidate
+is a target. These are **not** full-scene precision or recall, and do not
+override a human visual judgement merely because a candidate lies near a map
+reference polygon.
+
 Do not convert temporary/movable or inconclusive candidates into false-positive
 metrics until a target definition and complete negative labels have been frozen
 for a held-out case.
