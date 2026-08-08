@@ -16,7 +16,12 @@ class AnnotationError(ValueError):
     """Raised when an annotation template is malformed."""
 
 
-ASSESSMENTS = {"unreviewed", "real_visible_change", "mapping_only_or_not_visible"}
+ASSESSMENTS = {
+    "unreviewed",
+    "real_visible_change",
+    "mapping_only_or_not_visible",
+    "inconclusive_due_occlusion",
+}
 VISIBLE_CHANGE_TYPES = {
     "new_building",
     "building_extension",
@@ -74,6 +79,7 @@ def create_reference_label_template(
         "label_definition": {
             "real_visible_change": "A permanent change is visibly supported by the fixed before/after imagery.",
             "mapping_only_or_not_visible": "The reference-map difference is not a visible permanent change in the fixed imagery pair.",
+            "inconclusive_due_occlusion": "A fixed-pair review cannot establish whether the reference-map difference is real because cloud, shadow, tree cover, image quality, or another occlusion hides decisive evidence. It is excluded from scoring.",
             "after_roof_labels": "Human-drawn after-date roof outlines. They must remain empty until manually digitised from the after image.",
         },
         "labels": [
@@ -112,6 +118,7 @@ def validate_reference_label_document(
     seen: set[int] = set()
     reviewed = 0
     visible = 0
+    inconclusive = 0
     for label in labels:
         if not isinstance(label, dict):
             raise AnnotationError("Each reference label must be an object.")
@@ -132,8 +139,16 @@ def validate_reference_label_document(
             if change_type not in VISIBLE_CHANGE_TYPES:
                 raise AnnotationError("A real visible change needs a supported permanent visible_change_type.")
             visible += 1
-        elif change_type != "not_applicable":
-            raise AnnotationError("A mapping-only label must use visible_change_type=not_applicable.")
+        elif assessment == "mapping_only_or_not_visible":
+            if change_type != "not_applicable":
+                raise AnnotationError("A mapping-only label must use visible_change_type=not_applicable.")
+        else:
+            if change_type != "not_applicable":
+                raise AnnotationError("An inconclusive label must use visible_change_type=not_applicable.")
+            review_notes = label.get("review_notes")
+            if not isinstance(review_notes, str) or not review_notes.strip():
+                raise AnnotationError("An inconclusive label must record a non-empty review_notes explanation.")
+            inconclusive += 1
     if require_complete and reviewed != len(labels):
         raise AnnotationError("Annotation review is incomplete: at least one reference candidate is still unreviewed.")
     roof_labels = document.get("after_roof_labels")
@@ -145,6 +160,7 @@ def validate_reference_label_document(
         "reviewed_reference_count": reviewed,
         "unreviewed_reference_count": len(labels) - reviewed,
         "visible_permanent_change_count": visible,
+        "inconclusive_reference_count": inconclusive,
         "after_roof_label_count": len(roof_labels["features"]),
         "complete": reviewed == len(labels),
     }

@@ -32,7 +32,11 @@ For each reference candidate, set exactly one assessment:
 
 - `real_visible_change` plus a permanent `visible_change_type`, for example
   `new_building` or `building_extension`;
-- `mapping_only_or_not_visible` with `visible_change_type: not_applicable`.
+- `mapping_only_or_not_visible` with `visible_change_type: not_applicable`;
+- `inconclusive_due_occlusion` with `visible_change_type: not_applicable` and
+  a review note. Use this when vegetation, cloud, shadow, poor quality, or
+  another occlusion prevents a reliable decision. It is neither a positive nor
+  a negative label and is excluded from scoring.
 
 For a real building change, manually digitise the complete after-date **roof**
 into `after_roof_labels`. Use only `human_review` as its label source. Do not

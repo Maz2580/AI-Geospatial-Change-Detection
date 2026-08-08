@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "case_id": "east_melbourne_extension_2020_2023",
+  "status": "human_reference_review_inconclusive",
+  "benchmark_eligibility": "excluded_from_scoring_due_to_occlusion",
+  "source_reference": {
+    "path": "data/benchmarks/east_melbourne_extension_2020_2023/reference/footprint_change_candidates.geojson",
+    "source": "City of Melbourne Building Footprints",
+    "warning": "Reference-map geometry is a review prompt only. It is not copied into after_roof_labels."
+  },
+  "source_imagery": {
+    "before": "2020-11-08",
+    "after": "2023-11-10"
+  },
+  "label_definition": {
+    "inconclusive_due_occlusion": "The fixed aerial pair cannot reliably establish the reference-map difference because the building edge is materially obscured. This is excluded from scoring.",
+    "after_roof_labels": "No roof geometry is supplied because the review did not establish an independently visible roof outline."
+  },
+  "labels": [
+    {
+      "reference_candidate_id": 1,
+      "assessment": "inconclusive_due_occlusion",
+      "visible_change_type": "not_applicable",
+      "review_notes": "Human reviewer observed that the building appears smaller in the before image, but dense tree cover requires excessive zoom and obscures decisive evidence. The reference difference cannot be confirmed with confidence from this fixed pair."
+    }
+  ],
+  "after_roof_labels": {
+    "type": "FeatureCollection",
+    "features": [],
+    "required_properties": {
+      "object_id": "unique stable string",
+      "change_type": "new_building, building_extension, unchanged_building, or not_a_building",
+      "reference_candidate_ids": "list of reviewed official-reference candidate IDs, possibly empty",
+      "label_source": "human_review"
+    }
+  }
+}
