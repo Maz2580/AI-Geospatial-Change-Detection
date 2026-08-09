@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "case_id": "melbourne_cbd_west_extension_a_2020_2023",
+  "review_status": "human_review_complete",
+  "fixed_imagery": {
+    "before": "2020-11-08",
+    "after": "2023-11-10"
+  },
+  "scope": "Visual review of the compact paired D-FINE and SegFormer CBD extension test. The two services returned identical candidate geometries and semantic labels, so the same visual outcome is recorded for each requested detector.",
+  "model_reviews": [
+    {
+      "model_id": "umami_extension_a_dfine",
+      "candidate_path": "data/benchmarks/melbourne_cbd_west_2020_2023/umami_extension_a_dfine/all_candidates.geojson",
+      "model": {
+        "service": "UMAMI Encroachment",
+        "detector": "D-FINE",
+        "mode": "change",
+        "long_side": 768,
+        "percentile": 90
+      },
+      "labels": [
+        {
+          "candidate_id": 1,
+          "assessment": "confirmed_target_change",
+          "target_type": "building_extension",
+          "outline_quality": "acceptable",
+          "review_notes": "The change is real. The outline is very close, but changes to the building's size and dimensions make an exact footprint difficult from this pair."
+        },
+        {
+          "candidate_id": 2,
+          "assessment": "not_target_change",
+          "target_type": "not_applicable",
+          "outline_quality": "not_assessed",
+          "review_notes": "The reviewer found no real change at this location."
+        },
+        {
+          "candidate_id": 3,
+          "assessment": "confirmed_target_change",
+          "target_type": "new_building",
+          "outline_quality": "poor",
+          "review_notes": "The site has a real change including garden work and small buildings, but the red outline does not represent it well and appears to follow shadow from nearby objects rather than the changed structures."
+        }
+      ]
+    },
+    {
+      "model_id": "umami_extension_a_segformer",
+      "candidate_path": "data/benchmarks/melbourne_cbd_west_2020_2023/umami_extension_a_segformer/all_candidates.geojson",
+      "model": {
+        "service": "UMAMI Encroachment",
+        "detector": "SegFormer",
+        "mode": "change",
+        "long_side": 768,
+        "percentile": 90
+      },
+      "labels": [
+        {
+          "candidate_id": 1,
+          "assessment": "confirmed_target_change",
+          "target_type": "building_extension",
+          "outline_quality": "acceptable",
+          "review_notes": "The change is real. The outline is very close, but changes to the building's size and dimensions make an exact footprint difficult from this pair."
+        },
+        {
+          "candidate_id": 2,
+          "assessment": "not_target_change",
+          "target_type": "not_applicable",
+          "outline_quality": "not_assessed",
+          "review_notes": "The reviewer found no real change at this location."
+        },
+        {
+          "candidate_id": 3,
+          "assessment": "confirmed_target_change",
+          "target_type": "new_building",
+          "outline_quality": "poor",
+          "review_notes": "The site has a real change including garden work and small buildings, but the red outline does not represent it well and appears to follow shadow from nearby objects rather than the changed structures."
+        }
+      ]
+    }
+  ]
+}
