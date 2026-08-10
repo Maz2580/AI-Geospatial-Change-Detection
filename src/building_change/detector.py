@@ -33,6 +33,34 @@ class DetectionConfig:
     shadow_dilation_m: float = 0.5
     shadow_component_overlap: float = 0.5
 
+    @classmethod
+    def from_preset(cls, name: str, **overrides: Any) -> "DetectionConfig":
+        """Build a config from a named preset, with optional explicit overrides."""
+        try:
+            preset = DETECTION_PRESETS[name]
+        except KeyError:
+            raise ValueError(
+                f"Unknown detection preset {name!r}; choose from {sorted(DETECTION_PRESETS)}."
+            ) from None
+        settings = dict(preset)
+        settings.update({key: value for key, value in overrides.items() if value is not None})
+        return cls(**settings)
+
+
+# Scored against the Melbourne CBD West 2020->2023 reference benchmark
+# (7 human-confirmed visible changes); see baseline_measurements.json.
+DETECTION_PRESETS: dict[str, dict[str, Any]] = {
+    # Reference recall 0.00 - defers the whole dense scene as shadow-uncertain.
+    "balanced": {},
+    # Reference recall 1.00 from 22 candidates, 10 of which need review.
+    "high-recall": {
+        "change_percentile": 96.0,
+        "min_area_m2": 10.0,
+        "morphology_m": 0.2,
+        "enable_shadow_filter": False,
+    },
+}
+
 
 def _read_new_image(path: Path) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
     with rasterio.open(path) as dataset:

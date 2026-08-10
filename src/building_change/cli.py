@@ -9,28 +9,30 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from .detector import DetectionConfig, run_detection
+from .detector import DETECTION_PRESETS, DetectionConfig, run_detection
 from .nearmap import NearmapApiError, NearmapClient, select_surveys
 from .umami import UmamiAnalysisRequest, UmamiApiError, UmamiBoundingBox, UmamiClient, write_analysis_outputs
 
 
 def _add_detection_options(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--change-percentile", type=float, default=98.5, help="Adaptive score percentile (default: 98.5).")
+    parser.add_argument("--preset", choices=sorted(DETECTION_PRESETS), default="balanced", help="Measured parameter set; 'balanced' scored 0.00 and 'high-recall' 1.00 reference recall on the Melbourne benchmark (default: balanced).")
+    parser.add_argument("--change-percentile", type=float, help="Adaptive score percentile; overrides the preset.")
     parser.add_argument("--change-threshold", type=float, help="Fixed 0-1 score threshold; overrides --change-percentile.")
-    parser.add_argument("--min-area-m2", type=float, default=20, help="Discard smaller candidate polygons (default: 20).")
-    parser.add_argument("--morphology-m", type=float, default=0.6, help="Noise-removal size in metres (default: 0.6).")
+    parser.add_argument("--min-area-m2", type=float, help="Discard smaller candidate polygons; overrides the preset.")
+    parser.add_argument("--morphology-m", type=float, help="Noise-removal size in metres; overrides the preset.")
     parser.add_argument("--keep-shadow-changes", action="store_true", help="Do not defer potential shadow changes to uncertain review output.")
     parser.add_argument("--no-register", action="store_true", help="Disable sub-pixel translation registration.")
 
 
 def _config(args: argparse.Namespace) -> DetectionConfig:
-    return DetectionConfig(
+    return DetectionConfig.from_preset(
+        args.preset,
         change_percentile=args.change_percentile,
         change_threshold=args.change_threshold,
         min_area_m2=args.min_area_m2,
         morphology_m=args.morphology_m,
-        enable_registration=not args.no_register,
-        enable_shadow_filter=not args.keep_shadow_changes,
+        enable_registration=False if args.no_register else None,
+        enable_shadow_filter=False if args.keep_shadow_changes else None,
     )
 
 
