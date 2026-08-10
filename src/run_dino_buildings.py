@@ -30,6 +30,7 @@ from building_change.dino_buildings import (  # noqa: E402  (must follow PROJ se
     DinoBuildingsError,
     run_dino_building_comparison,
 )
+from building_change.regularisation import RegularisationConfig  # noqa: E402
 
 
 def main() -> None:
@@ -55,6 +56,9 @@ def main() -> None:
     parser.add_argument("--match-distance-m", type=float, default=6.0, help="Absorb date-to-date footprint offsets up to this distance.")
     parser.add_argument("--match-iou", type=float, default=0.10, help="Minimum overlap IoU indicating the same footprint.")
     parser.add_argument("--extension-outside-fraction", type=float, default=0.25, help="Outside-area fraction required to flag an extension.")
+    parser.add_argument("--no-regularise", action="store_true", help="Skip dominant-orientation footprint regularisation.")
+    parser.add_argument("--regularise-tolerance-m", type=float, default=0.2, help="Regularisation simplify tolerance; use 2-3x the imagery pixel size (default: 0.2).")
+    parser.add_argument("--no-neighbour-alignment", action="store_true", help="Do not align footprints onto a shared estate grid.")
     args = parser.parse_args()
     load_dotenv(Path.cwd() / ".env")
     config = DinoBuildingsConfig(
@@ -62,6 +66,11 @@ def main() -> None:
         stride_px=args.stride_px,
         min_area_m2=args.min_area_m2,
         simplify_m=args.simplify_m,
+        regularisation=RegularisationConfig(
+            enabled=not args.no_regularise,
+            simplify_tolerance_m=args.regularise_tolerance_m,
+            align_neighbours=not args.no_neighbour_alignment,
+        ),
     )
     try:
         report = run_dino_building_comparison(
