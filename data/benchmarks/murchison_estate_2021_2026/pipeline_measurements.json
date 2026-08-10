@@ -1,0 +1,82 @@
+{
+  "dataset": "murchison_estate_2021_2026",
+  "before_date": "2021-12-01",
+  "after_date": "2026-04-18",
+  "imagery": "Nearmap Vert, EPSG:7855, 0.075 m/px, 7759 x 4959 px",
+  "scene_area_m2": 216476,
+  "human_baseline": {
+    "source": "data/labels/murchison_estate_2022_2026_site_review_labels.json",
+    "labelled_site_count": 14,
+    "known_building_total": 19,
+    "detected_building_total": 9,
+    "building_recall_on_known_sites": 0.4737,
+    "outline_quality_counts": {"poor": 7, "imperfect": 3, "partial": 2, "very_poor": 1, "not_applicable": 1},
+    "note": "Measured on the pre-fix pipeline. The site geometries behind these IDs are no longer on disk, so a fresh human review pass is required before this recall figure can be recomputed."
+  },
+  "measurements": [
+    {
+      "name": "pixel_detector_preset",
+      "comparison": "same imagery pair, only the preset differs",
+      "balanced": {"candidate_count": 0, "likely_new_building_count": 0, "shadow_uncertain_pixel_count": 11382329},
+      "high_recall": {"candidate_count": 113, "likely_new_building_count": 90, "shadow_uncertain_pixel_count": 0},
+      "interpretation": "The shipped default defers the entire scene as shadow-uncertain and returns nothing."
+    },
+    {
+      "name": "dino_footprint_input_normalisation",
+      "comparison": "same model and imagery, only the input scaling differs",
+      "raw_0_255": {
+        "before_footprint_count": 17,
+        "after_footprint_count": 44,
+        "after_total_area_m2": 899,
+        "scene_coverage_pct": 0.4,
+        "median_footprint_m2": 15,
+        "footprints_over_100_m2": 0,
+        "change_candidate_count": 44
+      },
+      "imagenet_normalised": {
+        "before_footprint_count": 154,
+        "after_footprint_count": 244,
+        "after_total_area_m2": 36007,
+        "scene_coverage_pct": 16.6,
+        "median_footprint_m2": 86,
+        "footprints_over_100_m2": 112,
+        "change_candidate_count": 142
+      },
+      "interpretation": "A built-out suburban estate is roughly 20-35% roof, so only the normalised input is physically plausible. Sampled tile coverage: 2.28% raw, 18.92% scaled 0-1, 20.31% ImageNet."
+    },
+    {
+      "name": "outline_regularisation",
+      "comparison": "same candidates, with and without dominant-orientation snapping",
+      "dino_footprints": {"edge_angle_error_deg_before": 15.87, "edge_angle_error_deg_after": 4.97, "vertices_before": 30.7, "vertices_after": 24.8, "area_preserved_pct": 97.9},
+      "pixel_detector": {"vertices_before": 338.4, "vertices_after": 29.6, "rectangularity_before": 0.565, "rectangularity_after": 0.587, "area_preserved_pct": 99.1, "candidates_before": 88, "candidates_after": 90},
+      "interpretation": "Edge-angle error is only meaningful on already-simplified polygons. Raw shapes() output follows the pixel grid, so every edge is axis-aligned and the metric reads near zero by construction."
+    },
+    {
+      "name": "resolution_ladder",
+      "comparison": "same model, imagery downsampled before inference",
+      "results": [
+        {"res_m": 0.075, "after_footprints": 41, "coverage_pct": 0.4},
+        {"res_m": 0.15, "after_footprints": 11, "coverage_pct": 0.09},
+        {"res_m": 0.3, "after_footprints": 2, "coverage_pct": 0.03},
+        {"res_m": 0.5, "after_footprints": 0, "coverage_pct": 0.0}
+      ],
+      "interpretation": "Refuted the hypothesis that ground sample distance caused the misses. Coverage fell monotonically with coarser imagery, which pointed at preprocessing instead."
+    },
+    {
+      "name": "fusion_of_fixed_channels",
+      "inputs": {"pixel_change": 113, "dino_footprints": 142, "dinov2_semantic": 76},
+      "fused_total": 205,
+      "multi_source_agreement": 53,
+      "single_source_only": 152,
+      "median_area_m2": 41,
+      "candidates_over_100_m2": 62,
+      "comparison_to_enhanced_test_v4": {"fused_total": 117, "multi_source_agreement": 3},
+      "interpretation": "Cross-source agreement rose from 3 to 53 candidates, which is the clearest signal that the channels are now describing the same real objects."
+    }
+  ],
+  "outstanding": [
+    "No precision/recall for the fixed pipeline. Needs a fresh human review pass over the current candidates, since the labelled site geometries are gone.",
+    "The Melbourne CBD West benchmark cannot be re-run locally because that AOI's imagery is not in data/input.",
+    "Vision-model review is implemented but unexercised: integrate.api.nvidia.com is blocked on the development network."
+  ]
+}
