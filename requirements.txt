@@ -6,5 +6,9 @@ requests>=2.31
 shapely>=2.0
 python-dotenv>=1.0
 
+# Footprint polygon regularisation (dominant-angle snapping)
+geopandas>=1.0
+buildingregulariser>=0.2.5
+
 # Existing experimental model scripts additionally use:
-# torch torchvision transformers ultralytics geopandas samgeo
+# torch torchvision transformers ultralytics samgeo
