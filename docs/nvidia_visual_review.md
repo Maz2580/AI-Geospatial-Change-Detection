@@ -33,6 +33,23 @@ Get a key from <https://build.nvidia.com> — sign in, open any model, and use
 
 > Watch the spelling. `NVIDIA_API_KEY`, not `VIDIA_API_KEY`.
 
+> **Write `.env` without a byte-order mark.** In Windows PowerShell 5.1,
+> `Set-Content -Encoding UTF8` prepends a UTF-8 BOM. The BOM attaches to the
+> *first* variable name, so `HF_TOKEN` silently becomes `\ufeffHF_TOKEN` and stops
+> loading. Edit `.env` in an editor, or strip a BOM with:
+>
+> ```powershell
+> $p = (Resolve-Path .env).Path
+> $t = [System.IO.File]::ReadAllText($p).TrimStart([char]0xFEFF)
+> [System.IO.File]::WriteAllText($p, $t, (New-Object System.Text.UTF8Encoding $false))
+> ```
+>
+> Verify with:
+>
+> ```powershell
+> .\venv\Scripts\python.exe -c "from dotenv import load_dotenv, find_dotenv; import os; load_dotenv(find_dotenv()); print([k for k in ('HF_TOKEN','NEARMAP_API_KEY','NVIDIA_API_KEY') if os.getenv(k)])"
+> ```
+
 ## Network requirement
 
 The API host must be reachable. Check before anything else:
@@ -55,6 +72,16 @@ TCP connects but TLS is killed, which is SNI-based filtering rather than a
 certificate problem. No code change works around it. If you hit the same thing,
 ask for `integrate.api.nvidia.com` to be allowlisted — it is a single host, so it
 can be a narrow exception rather than a broad rule.
+
+The block is on the **host**, not on any model or vendor. Every NIM model is
+served from `integrate.api.nvidia.com`, so switching models does not help. A
+plain text request to `meta/llama-3.1-8b-instruct` fails exactly like a vision
+request, on both the `/v1/chat/completions` and `/v1/{model}` paths, and so does
+an unauthenticated `GET /v1/models`. Note the timing: roughly 19 s of hang before
+the reset on the blocked host, against 0.7 s for a reachable one — a filter
+holding the connection, not a server refusing it. `ai.api.nvidia.com` is
+reachable but returns 404 for these paths; it is a different service and is not a
+substitute.
 
 ## Verify the key
 
@@ -179,7 +206,8 @@ For another OpenAI-compatible endpoint:
 
 | Symptom | Cause |
 | --- | --- |
-| `No API key found in $NVIDIA_API_KEY` | Key missing from `.env`, or the name is misspelled |
+| `No API key found in $NVIDIA_API_KEY` | Key missing from `.env`, the name is misspelled, or a BOM is attached to it |
+| A key that is present in `.env` but never loads | UTF-8 BOM on the first line, see the setup note above |
 | Connection reset / timeout | Host blocked by the network, see above |
 | `HTTP 401` | Key invalid or expired |
 | `HTTP 404` | Model name wrong, or `--openai-route` used against a NIM path |
