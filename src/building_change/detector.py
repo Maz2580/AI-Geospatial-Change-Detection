@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 import json
 import math
 from pathlib import Path
@@ -14,6 +14,8 @@ import rasterio
 from rasterio.features import geometry_mask, shapes
 from rasterio.warp import Resampling, reproject, transform_geom
 from shapely.geometry import mapping, shape
+
+from .regularisation import RegularisationConfig, regularise_geometries
 
 
 @dataclass(frozen=True)
@@ -32,6 +34,7 @@ class DetectionConfig:
     shadow_context_m: float = 8.0
     shadow_dilation_m: float = 0.5
     shadow_component_overlap: float = 0.5
+    regularisation: RegularisationConfig = field(default_factory=RegularisationConfig)
 
     @classmethod
     def from_preset(cls, name: str, **overrides: Any) -> "DetectionConfig":
@@ -249,13 +252,20 @@ def _vectorise(mask: np.ndarray, score: np.ndarray, profile: dict[str, Any], con
     source_crs = profile["crs"]
     if source_crs is None:
         raise ValueError("The after image has no CRS; a GeoTIFF with georeferencing is required.")
+    detected: list[tuple[Any, Any]] = []
     for geometry_json, value in shapes(mask, mask=mask.astype(bool), transform=profile["transform"]):
         if value != 1:
             continue
         geometry = shape(geometry_json)
-        area = _area_m2(geometry, source_crs)
-        if area < config.min_area_m2:
+        if _area_m2(geometry, source_crs) < config.min_area_m2:
             continue
+        detected.append((geometry, geometry_json))
+
+    # Evidence stays sampled from the detected mask; only the reported outline is regularised.
+    outlines = regularise_geometries([item[0] for item in detected], source_crs, config.regularisation)
+
+    for (raw_geometry, geometry_json), geometry in zip(detected, outlines):
+        area = _area_m2(geometry, source_crs)
         footprint = geometry_mask([geometry_json], out_shape=mask.shape, transform=profile["transform"], invert=True)
         rectangularity = 0.0 if geometry.minimum_rotated_rectangle.area <= 0 else min(1.0, float(geometry.area / geometry.minimum_rotated_rectangle.area))
         mean_height_change: float | None = None
