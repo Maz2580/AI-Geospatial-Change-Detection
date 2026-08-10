@@ -30,6 +30,17 @@ DINO_BUILDINGS_REPOSITORY = "hotosm/dinov3s-buildings"
 DINO_BUILDINGS_FILENAME = "model.onnx"
 DINO_BUILDINGS_THRESHOLD = 0.4371
 
+# The published graph wraps a frozen DINOv3 ViT-S/16 backbone, which is trained
+# on ImageNet-normalised input. Feeding it raw 0-255 saturates the logits and
+# collapses building coverage to ~2% of a fully built-out suburban scene.
+_IMAGENET_MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32).reshape(3, 1, 1)
+_IMAGENET_STD = np.array([0.229, 0.224, 0.225], dtype=np.float32).reshape(3, 1, 1)
+
+
+def _normalise_tile(tile: np.ndarray) -> np.ndarray:
+    """Convert a 0-255 RGB tile to the backbone's expected input statistics."""
+    return (tile / 255.0 - _IMAGENET_MEAN) / _IMAGENET_STD
+
 
 class DinoBuildingsError(ValueError):
     """Raised when the optional DINO building-footprint model cannot run."""
@@ -99,7 +110,11 @@ def _segment_probability(
     valid: np.ndarray,
     config: DinoBuildingsConfig,
 ) -> np.ndarray:
-    """Run full-resolution overlapping-window inference on RGB in 0--255 space."""
+    """Run full-resolution overlapping-window inference on RGB in 0--255 space.
+
+    Tiles are assembled in 0-255 space and normalised immediately before
+    inference, so edge padding stays black rather than becoming a live value.
+    """
     if rgb.ndim != 3 or rgb.shape[0] != 3:
         raise DinoBuildingsError("DINO building inference requires an RGB array shaped [3, height, width].")
     if valid.shape != rgb.shape[1:]:
@@ -115,7 +130,7 @@ def _segment_probability(
             right = min(left + config.window_px, width)
             tile = np.zeros((3, config.window_px, config.window_px), dtype=np.float32)
             tile[:, : bottom - top, : right - left] = image[:, top:bottom, left:right]
-            outputs = session.run(None, {"image": tile[None]})
+            outputs = session.run(None, {"image": _normalise_tile(tile)[None]})
             if not outputs:
                 raise DinoBuildingsError("The DINO ONNX session returned no outputs.")
             tile_probability = _building_probability(np.asarray(outputs[0]))
