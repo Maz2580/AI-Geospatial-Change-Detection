@@ -87,17 +87,45 @@ class VisualReviewConfig:
             raise VisualReviewError("max_candidates must be positive when set.")
 
 
+# Verified against docs.api.nvidia.com Multimodal APIs. The smaller two are the
+# sensible free-tier choices; the 90b is the same API but much heavier.
+VISION_MODELS: tuple[str, ...] = (
+    "meta/llama-3.2-11b-vision-instruct",
+    "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+    "meta/llama-3.2-90b-vision-instruct",
+)
+
+
 @dataclass(frozen=True)
 class ProviderConfig:
-    """Connection settings for an OpenAI-compatible vision endpoint."""
+    """Connection settings for an NVIDIA NIM or OpenAI-compatible vision endpoint."""
 
     base_url: str = "https://integrate.api.nvidia.com/v1"
-    model: str = "meta/llama-3.2-90b-vision-instruct"
+    model: str = "meta/llama-3.2-11b-vision-instruct"
     api_key_env: str = "NVIDIA_API_KEY"
+    # NIM multimodal models are invoked at /{model}; OpenAI-style routes use
+    # /chat/completions with the model named in the body.
+    use_model_path: bool = True
+    # NIM answers 202 plus an NVCF-REQID header when a result is not ready yet.
+    poll_base_url: str = "https://api.nvcf.nvidia.com/v2/nvcf/pexec/status"
+    poll_interval_s: float = 2.0
+    poll_timeout_s: float = 180.0
     timeout_s: float = 90.0
     max_retries: int = 2
     temperature: float = 0.0
     max_tokens: int = 200
+
+    def validate(self) -> None:
+        if not 0 <= self.temperature <= 2:
+            raise VisualReviewError("temperature must be between 0 and 2.")
+        if not 1 <= self.max_tokens <= 8192:
+            raise VisualReviewError("max_tokens must be between 1 and 8192.")
+        if self.poll_interval_s <= 0 or self.poll_timeout_s <= 0:
+            raise VisualReviewError("Polling interval and timeout must be positive.")
+
+    def invoke_url(self) -> str:
+        base = self.base_url.rstrip("/")
+        return f"{base}/{self.model}" if self.use_model_path else f"{base}/chat/completions"
 
     def resolve_key(self) -> str:
         key = os.getenv(self.api_key_env, "").strip()
@@ -115,10 +143,35 @@ class ReviewProvider(Protocol):
 
 
 class OpenAICompatibleProvider:
-    """Vision review via an OpenAI-compatible chat-completions endpoint."""
+    """Vision review via an NVIDIA NIM or OpenAI-compatible chat endpoint."""
 
     def __init__(self, config: ProviderConfig | None = None) -> None:
         self.config = config or ProviderConfig()
+        self.config.validate()
+
+    @staticmethod
+    def _content(reply: dict[str, Any]) -> str:
+        return reply["choices"][0]["message"]["content"]
+
+    def _poll(self, session: Any, request_id: str) -> str:
+        """Follow a NIM 202 until the result is ready."""
+        import time
+
+        deadline = time.monotonic() + self.config.poll_timeout_s
+        url = f"{self.config.poll_base_url.rstrip('/')}/{request_id}"
+        while time.monotonic() < deadline:
+            time.sleep(self.config.poll_interval_s)
+            response = session.get(
+                url,
+                headers={"Authorization": f"Bearer {self.config.resolve_key()}", "Accept": "application/json"},
+                timeout=self.config.timeout_s,
+            )
+            if response.status_code == 202:
+                continue
+            if response.status_code >= 400:
+                raise VisualReviewError(f"Polling request {request_id} returned HTTP {response.status_code}.")
+            return self._content(response.json())
+        raise VisualReviewError(f"Request {request_id} did not complete within {self.config.poll_timeout_s:.0f}s.")
 
     def classify(self, before_jpeg: bytes, after_jpeg: bytes, prompt: str) -> str:
         import requests
@@ -141,35 +194,45 @@ class OpenAICompatibleProvider:
             ],
             "temperature": self.config.temperature,
             "max_tokens": self.config.max_tokens,
+            "stream": False,
         }
         headers = {
             "Authorization": f"Bearer {self.config.resolve_key()}",
             "Accept": "application/json",
         }
         last_error: Exception | None = None
-        for attempt in range(self.config.max_retries + 1):
-            try:
-                response = requests.post(
-                    f"{self.config.base_url.rstrip('/')}/chat/completions",
-                    json=body,
-                    headers=headers,
-                    timeout=self.config.timeout_s,
-                )
-            except Exception as exc:
-                last_error = exc
-                continue
-            if response.status_code >= 400:
-                # Status text only: the response body can echo request content.
-                last_error = VisualReviewError(
-                    f"Review endpoint returned HTTP {response.status_code} for model {self.config.model!r}."
-                )
-                if response.status_code in (400, 401, 403, 404):
-                    raise last_error
-                continue
-            try:
-                return response.json()["choices"][0]["message"]["content"]
-            except (ValueError, KeyError, IndexError, TypeError) as exc:
-                last_error = exc
+        with requests.Session() as session:
+            for _ in range(self.config.max_retries + 1):
+                try:
+                    response = session.post(
+                        self.config.invoke_url(),
+                        json=body,
+                        headers=headers,
+                        timeout=self.config.timeout_s,
+                    )
+                except Exception as exc:
+                    last_error = exc
+                    continue
+
+                if response.status_code == 202:
+                    request_id = response.headers.get("NVCF-REQID")
+                    if not request_id:
+                        last_error = VisualReviewError("Endpoint returned 202 without an NVCF-REQID header.")
+                        continue
+                    return self._poll(session, request_id)
+
+                if response.status_code >= 400:
+                    # Status only: the body can echo back the submitted request content.
+                    last_error = VisualReviewError(
+                        f"Review endpoint returned HTTP {response.status_code} for model {self.config.model!r}."
+                    )
+                    if response.status_code in (400, 401, 403, 404, 422):
+                        raise last_error
+                    continue
+                try:
+                    return self._content(response.json())
+                except (ValueError, KeyError, IndexError, TypeError) as exc:
+                    last_error = exc
         raise VisualReviewError(f"Review request failed after {self.config.max_retries + 1} attempts: {last_error}")
 
 
