@@ -5,8 +5,12 @@ venv/
 # Python
 __pycache__/
 *.py[cod]
+
+# Model weights and caches (downloaded on demand, never committed)
 *.pth
 *.zip
+*.onnx
+.cache/
 
 # Images and Outputs
 *.tif
@@ -20,3 +24,6 @@ output/
 
 # Local Tracking
 roadmap.md
+
+# Quarantined dead experiments (see review)
+.quarantine/
