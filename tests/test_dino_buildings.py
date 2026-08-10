@@ -10,6 +10,7 @@ from building_change.dino_buildings import (
     DinoBuildingsConfig,
     _building_probability,
     _footprint_collection,
+    _normalise_tile,
     _segment_probability,
     _window_starts,
 )
@@ -21,6 +22,15 @@ class _AlwaysBuildingSession:
         logits = np.zeros((1, 3, 256, 256), dtype=np.float32)
         logits[:, 0] = 4.0
         return [logits]
+
+
+class _RecordingSession(_AlwaysBuildingSession):
+    def __init__(self) -> None:
+        self.seen: list[np.ndarray] = []
+
+    def run(self, output_names, input_feed):
+        self.seen.append(input_feed["image"])
+        return super().run(output_names, input_feed)
 
 
 class DinoBuildingsTests(unittest.TestCase):
@@ -41,6 +51,24 @@ class DinoBuildingsTests(unittest.TestCase):
         )
         self.assertEqual(probability.shape, (40, 50))
         self.assertGreater(float(probability.min()), 0.9)
+
+    def test_tiles_reach_the_model_imagenet_normalised_not_as_raw_bytes(self) -> None:
+        # The frozen DINOv3 backbone saturates on raw 0-255 input.
+        white = _normalise_tile(np.full((3, 4, 4), 255.0, dtype=np.float32))
+        black = _normalise_tile(np.zeros((3, 4, 4), dtype=np.float32))
+
+        self.assertAlmostEqual(float(white[0].mean()), (1.0 - 0.485) / 0.229, places=4)
+        self.assertAlmostEqual(float(black[0].mean()), -0.485 / 0.229, places=4)
+
+        session = _RecordingSession()
+        _segment_probability(
+            session,
+            np.full((3, 40, 50), 255.0, dtype=np.float32),
+            np.ones((40, 50), dtype=bool),
+            DinoBuildingsConfig(),
+        )
+        self.assertTrue(session.seen)
+        self.assertLessEqual(float(session.seen[0].max()), 3.0)
 
     def test_vectorised_footprints_keep_dated_model_provenance(self) -> None:
         probability = np.zeros((16, 16), dtype=np.float32)

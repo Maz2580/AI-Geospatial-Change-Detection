@@ -9,7 +9,7 @@ candidate.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 import json
 import os
 from pathlib import Path
@@ -23,11 +23,23 @@ from shapely.geometry import mapping, shape
 
 from .detector import _area_m2, _read_new_image, _reproject_rgb, _write_raster
 from .footprints import write_comparison_outputs
+from .regularisation import RegularisationConfig, regularise_geometries
 
 
 DINO_BUILDINGS_REPOSITORY = "hotosm/dinov3s-buildings"
 DINO_BUILDINGS_FILENAME = "model.onnx"
 DINO_BUILDINGS_THRESHOLD = 0.4371
+
+# The published graph wraps a frozen DINOv3 ViT-S/16 backbone, which is trained
+# on ImageNet-normalised input. Feeding it raw 0-255 saturates the logits and
+# collapses building coverage to ~2% of a fully built-out suburban scene.
+_IMAGENET_MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32).reshape(3, 1, 1)
+_IMAGENET_STD = np.array([0.229, 0.224, 0.225], dtype=np.float32).reshape(3, 1, 1)
+
+
+def _normalise_tile(tile: np.ndarray) -> np.ndarray:
+    """Convert a 0-255 RGB tile to the backbone's expected input statistics."""
+    return (tile / 255.0 - _IMAGENET_MEAN) / _IMAGENET_STD
 
 
 class DinoBuildingsError(ValueError):
@@ -47,6 +59,7 @@ class DinoBuildingsConfig:
     stride_px: int = 192
     min_area_m2: float = 10.0
     simplify_m: float = 0.25
+    regularisation: RegularisationConfig = field(default_factory=RegularisationConfig)
 
     def validate(self) -> None:
         if not 0 < self.threshold < 1:
@@ -57,6 +70,7 @@ class DinoBuildingsConfig:
             raise DinoBuildingsError("DINO stride must be greater than zero and no larger than the window.")
         if self.min_area_m2 <= 0 or self.simplify_m < 0:
             raise DinoBuildingsError("Minimum area must be positive and simplify distance cannot be negative.")
+        self.regularisation.validate()
 
 
 def _window_starts(length: int, window: int, stride: int) -> list[int]:
@@ -96,7 +110,11 @@ def _segment_probability(
     valid: np.ndarray,
     config: DinoBuildingsConfig,
 ) -> np.ndarray:
-    """Run full-resolution overlapping-window inference on RGB in 0--255 space."""
+    """Run full-resolution overlapping-window inference on RGB in 0--255 space.
+
+    Tiles are assembled in 0-255 space and normalised immediately before
+    inference, so edge padding stays black rather than becoming a live value.
+    """
     if rgb.ndim != 3 or rgb.shape[0] != 3:
         raise DinoBuildingsError("DINO building inference requires an RGB array shaped [3, height, width].")
     if valid.shape != rgb.shape[1:]:
@@ -112,7 +130,7 @@ def _segment_probability(
             right = min(left + config.window_px, width)
             tile = np.zeros((3, config.window_px, config.window_px), dtype=np.float32)
             tile[:, : bottom - top, : right - left] = image[:, top:bottom, left:right]
-            outputs = session.run(None, {"image": tile[None]})
+            outputs = session.run(None, {"image": _normalise_tile(tile)[None]})
             if not outputs:
                 raise DinoBuildingsError("The DINO ONNX session returned no outputs.")
             tile_probability = _building_probability(np.asarray(outputs[0]))
@@ -141,7 +159,7 @@ def _footprint_collection(
     if source_crs is None:
         raise DinoBuildingsError("The imagery GeoTIFF has no CRS; DINO footprints cannot be georeferenced.")
     mask = (probability >= config.threshold) & valid
-    features: list[dict[str, Any]] = []
+    raw_geometries: list[Any] = []
     for geometry_json, value in shapes(mask.astype(np.uint8), mask=mask, transform=profile["transform"]):
         if value != 1:
             continue
@@ -152,8 +170,14 @@ def _footprint_collection(
             continue
         if config.simplify_m and source_crs.is_projected:
             geometry = geometry.simplify(config.simplify_m, preserve_topology=True)
-        if geometry.is_empty:
+        if geometry.is_empty or _area_m2(geometry, source_crs) < config.min_area_m2:
             continue
+        raw_geometries.append(geometry)
+
+    geometries = regularise_geometries(raw_geometries, source_crs, config.regularisation)
+
+    features: list[dict[str, Any]] = []
+    for geometry in geometries:
         area_m2 = _area_m2(geometry, source_crs)
         if area_m2 < config.min_area_m2:
             continue
@@ -189,6 +213,7 @@ def _footprint_collection(
             "source_model": DINO_BUILDINGS_REPOSITORY,
             "probability_threshold": config.threshold,
             "min_area_m2": config.min_area_m2,
+            "regularisation": asdict(config.regularisation),
             "capture_date": capture_date or "unknown",
             "evidence_role": "dated_object_footprint",
         },

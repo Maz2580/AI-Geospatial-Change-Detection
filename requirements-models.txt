@@ -3,3 +3,7 @@
 # system CUDA installation. GPU acceleration can be configured separately.
 huggingface-hub>=0.26
 onnxruntime>=1.20
+
+# DINOv2 semantic change channel (src/building_change/dino_change.py)
+torch>=2.2
+timm>=1.0
