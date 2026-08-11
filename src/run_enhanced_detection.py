@@ -28,8 +28,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from building_change.detector import DetectionConfig, run_detection
-from building_change.dino_change import DINOChangeConfig, DINOChangeError, run_dino_change_detection
-from building_change.dino_buildings import DinoBuildingsConfig, run_dino_building_comparison, DinoBuildingsError
 from building_change.fusion import fuse_candidates, FusionError
 
 logging.basicConfig(
@@ -47,6 +45,7 @@ def run_enhanced_pipeline(
     *,
     before_date: str,
     after_date: str,
+    pixel_preset: str = "high-recall",
     skip_dino: bool = False,
     skip_dino_buildings: bool = False,
 ) -> dict:
@@ -64,7 +63,7 @@ def run_enhanced_pipeline(
         pixel_dir = output_dir / "pixel_change"
         pixel_report = run_detection(
             before_image, after_image, pixel_dir,
-            config=DetectionConfig(),
+            config=DetectionConfig.from_preset(pixel_preset),
             before_capture_date=before_date,
             after_capture_date=after_date,
         )
@@ -95,6 +94,10 @@ def run_enhanced_pipeline(
         logger.info("=" * 60)
         t0 = time.time()
         try:
+            # The semantic channel is optional. Import lazily so that a
+            # footprint-only run remains usable when PyTorch is not installed.
+            from building_change.dino_change import DINOChangeConfig, run_dino_change_detection
+
             dino_dir = output_dir / "dino_semantic"
             dino_report = run_dino_change_detection(
                 before_image, after_image, dino_dir,
@@ -111,11 +114,8 @@ def run_enhanced_pipeline(
                 collection = json.loads(candidates_path.read_text(encoding="utf-8"))
                 if collection.get("features"):
                     candidate_inputs["dinov2_semantic"] = collection
-        except DINOChangeError as exc:
-            logger.error("DINOv2 detection failed: %s", exc)
-            results["dino_semantic"] = {"error": str(exc)}
         except Exception as exc:
-            logger.error("DINOv2 detection failed unexpectedly: %s", exc)
+            logger.error("DINOv2 detection failed: %s", exc)
             results["dino_semantic"] = {"error": str(exc)}
 
     # ---- Channel 3: DINOv3s Building Footprints ----
@@ -125,6 +125,9 @@ def run_enhanced_pipeline(
         logger.info("=" * 60)
         t0 = time.time()
         try:
+            # Like the semantic channel, this remains separately installable.
+            from building_change.dino_buildings import DinoBuildingsConfig, run_dino_building_comparison
+
             dino_bldg_dir = output_dir / "dino_buildings"
             dino_bldg_report = run_dino_building_comparison(
                 before_image, after_image, dino_bldg_dir,
@@ -141,11 +144,8 @@ def run_enhanced_pipeline(
                 collection = json.loads(candidates_path.read_text(encoding="utf-8"))
                 if collection.get("features"):
                     candidate_inputs["dino_footprints"] = collection
-        except DinoBuildingsError as exc:
-            logger.error("DINOv3s footprints failed: %s", exc)
-            results["dino_buildings"] = {"error": str(exc)}
         except Exception as exc:
-            logger.error("DINOv3s footprints failed unexpectedly: %s", exc)
+            logger.error("DINOv3s footprints failed: %s", exc)
             results["dino_buildings"] = {"error": str(exc)}
 
     # ---- Fusion ----
@@ -214,6 +214,12 @@ def main() -> None:
     parser.add_argument("--output", required=True, type=Path, help="Output directory.")
     parser.add_argument("--before-date", required=True, help="Before capture date (ISO).")
     parser.add_argument("--after-date", required=True, help="After capture date (ISO).")
+    parser.add_argument(
+        "--pixel-preset",
+        choices=("balanced", "high-recall"),
+        default="high-recall",
+        help="Pixel channel preset. High recall is the measured default; it provides evidence, not final building geometry.",
+    )
     parser.add_argument("--skip-dino", action="store_true", help="Skip DINOv2 semantic channel.")
     parser.add_argument("--skip-dino-buildings", action="store_true", help="Skip DINOv3s footprint channel.")
 
@@ -223,6 +229,7 @@ def main() -> None:
         args.before, args.after, args.output,
         before_date=args.before_date,
         after_date=args.after_date,
+        pixel_preset=args.pixel_preset,
         skip_dino=args.skip_dino,
         skip_dino_buildings=args.skip_dino_buildings,
     )

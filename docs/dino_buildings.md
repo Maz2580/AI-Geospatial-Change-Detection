@@ -23,6 +23,12 @@ validate reference changes on exact aerial dates, then measure every detector
 against the approved labels. Only a detector with measured improvement on that
 held-out benchmark can re-enter the fusion workflow.
 
+The independent 100 m Murchison north-west check reached the same conclusion:
+the model outlined several genuine new roofs well, but generated numerous
+unchanged-house "extension" proposals. Its frozen inputs and limited visual
+audit are recorded in
+[`murchison_nw_holdout_2022_2026.md`](murchison_nw_holdout_2022_2026.md).
+
 For archival reproduction only, install the optional dependencies in the
 project virtual environment:
 
