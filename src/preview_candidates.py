@@ -37,7 +37,7 @@ def _draw_polygon(img, geom_crs, src, window):
         
     return img_copy
 
-def generate_previews(before_path, after_path, geojson_path, output_dir, top_n=10, buffer_m=30):
+def generate_previews(before_path, after_path, geojson_path, output_dir, max_candidates=None, buffer_m=30):
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     
@@ -49,25 +49,20 @@ def generate_previews(before_path, after_path, geojson_path, output_dir, top_n=1
         logger.info("No candidates found in GeoJSON.")
         return
         
-    # Only keep multi-source candidates
-    multi_source_features = [f for f in features if f.get("properties", {}).get("source_count", 1) > 1]
+    logger.info(f"Generating previews for {len(features)} candidates...")
     
-    if not multi_source_features:
-        logger.warning("No multi-source candidates found. Previewing top 10 single-source candidates instead.")
-        features.sort(key=lambda f: f.get("properties", {}).get("area_m2", 0), reverse=True)
-        top_features = features[:top_n]
-    else:
-        logger.info(f"Found {len(multi_source_features)} multi-source candidates.")
-        multi_source_features.sort(key=lambda f: f.get("properties", {}).get("area_m2", 0), reverse=True)
-        top_features = multi_source_features[:top_n]
-    
+    # Optionally cap the number of previews to prevent taking forever
+    if max_candidates is not None and len(features) > max_candidates:
+        logger.warning(f"Capping previews to top {max_candidates}.")
+        features = features[:max_candidates]
+        
     with rasterio.open(before_path) as src_b, rasterio.open(after_path) as src_a:
-        for i, feature in enumerate(top_features):
+        for i, feature in enumerate(features):
             geom = feature["geometry"]
             props = feature["properties"]
             cand_id = props.get("candidate_id", i)
             area = props.get("area_m2", 0)
-            sources = ", ".join(props.get("candidate_sources", []))
+            sources = ", ".join(props.get("candidate_sources", [])) if "candidate_sources" in props else props.get("classification", "unknown")
             
             # Get bounds in EPSG:4326
             west, south, east, north = get_bounds(geom)
@@ -133,9 +128,19 @@ def generate_previews(before_path, after_path, geojson_path, output_dir, top_n=1
             logger.info(f"Saved preview: {out_path}")
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--before", required=True, type=Path)
+    parser.add_argument("--after", required=True, type=Path)
+    parser.add_argument("--geojson", required=True, type=Path)
+    parser.add_argument("--output-dir", required=True, type=Path)
+    parser.add_argument("--max-candidates", type=int, default=None)
+    args = parser.parse_args()
+    
     generate_previews(
-        before_path=r"data\input\EPSG7855_Date20211201_Lat-36.336606_Lon145.406921_Mpp0.075_VertJPEG-0000\EPSG7855_Date20211201_Lat-36.336606_Lon145.406921_Mpp0.075_Vert.tif",
-        after_path=r"data\input\EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_VertJPEG-0000\EPSG7855_Date20260418_Lat-36.336606_Lon145.406921_Mpp0.075_Vert.tif",
-        geojson_path=r"data\output\enhanced_test_v4\enhanced_fused_candidates.geojson",
-        output_dir=r"data\output\enhanced_test_v4\previews"
+        before_path=args.before,
+        after_path=args.after,
+        geojson_path=args.geojson,
+        output_dir=args.output_dir,
+        max_candidates=args.max_candidates
     )
