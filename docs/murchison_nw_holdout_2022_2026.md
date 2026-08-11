@@ -27,11 +27,13 @@ committing licensed imagery to Git.
 | DINOv3 building footprints | 71 before and 87 after footprints; 48 change proposals (14 new, 34 extension) | often follows a true new roof well, but date-to-date segmentation variation produces many false extension proposals |
 | pixel support for DINO proposals | 15 weakly supported; 33 footprint-only | pixel absence must not silently discard a DINO proposal, but pixel support does not validate a building either |
 
-Visual review of candidates 1--3 found unchanged homes incorrectly proposed as
-extensions. Candidates 4, 11 and 16 are clear new structures with useful roof
-outlines. Candidate 26 is a road/footpath proposal, not a building. Therefore
-the DINO footprint comparator remains experimental and is **not** an accepted
-primary candidate source.
+The initial technical review found both useful new-roof outlines and
+date-to-date segmentation differences on existing houses. Human review has
+now confirmed that candidates 25, 26, 27, 32, 36, 45 and 47 are not buildings;
+those decisions live in
+[`murchison_nw_holdout_2022_2026_dino_footprint_review_labels.json`](../data/labels/murchison_nw_holdout_2022_2026_dino_footprint_review_labels.json).
+All other candidates remain unreviewed. Therefore the DINO footprint comparator
+remains experimental and is **not** an accepted primary candidate source.
 
 ## NVIDIA visual-review diagnostic
 

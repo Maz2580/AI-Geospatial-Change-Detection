@@ -1,0 +1,45 @@
+{
+  "dataset": "murchison_nw_holdout_2022_2026",
+  "source_review": "data/output/murchison_estate_holdout_nw_2022_2026_dino_footprints/review/index.html",
+  "candidate_source": "hotosm/dinov3s-buildings footprint comparison",
+  "before_date": "2022-02-02",
+  "after_date": "2026-04-18",
+  "review_scope": "Only the listed candidates have a human decision. All remaining candidates are unreviewed.",
+  "labels": [
+    {
+      "review_candidate_id": 25,
+      "human_assessment": "not_a_building",
+      "notes": "Confirmed by reviewer; do not promote this proposal to a building change."
+    },
+    {
+      "review_candidate_id": 26,
+      "human_assessment": "not_a_building",
+      "notes": "Confirmed by reviewer; do not promote this proposal to a building change."
+    },
+    {
+      "review_candidate_id": 27,
+      "human_assessment": "not_a_building",
+      "notes": "Confirmed by reviewer; do not promote this proposal to a building change."
+    },
+    {
+      "review_candidate_id": 32,
+      "human_assessment": "not_a_building",
+      "notes": "Confirmed by reviewer; do not promote this proposal to a building change."
+    },
+    {
+      "review_candidate_id": 36,
+      "human_assessment": "not_a_building",
+      "notes": "Confirmed by reviewer; do not promote this proposal to a building change."
+    },
+    {
+      "review_candidate_id": 45,
+      "human_assessment": "not_a_building",
+      "notes": "Confirmed by reviewer; do not promote this proposal to a building change."
+    },
+    {
+      "review_candidate_id": 47,
+      "human_assessment": "not_a_building",
+      "notes": "Confirmed by reviewer; do not promote this proposal to a building change."
+    }
+  ]
+}
