@@ -12,29 +12,43 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
-from rasterio.warp import transform_geom
-from shapely.geometry import mapping, shape
+from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
+
+from .geodesy import from_metric, metric_crs_for, to_metric
 
 
 class FusionError(ValueError):
     """Raised when a candidate input is not usable WGS84 GeoJSON."""
 
 
-def _metric_geometry(geometry: dict[str, Any]) -> BaseGeometry:
+def _metric_geometry(geometry: dict[str, Any], crs: Any) -> BaseGeometry:
+    """Project into true ground metres so merge_distance_m means metres."""
     try:
-        projected = transform_geom("EPSG:4326", "EPSG:3857", geometry, precision=6)
-        result = shape(projected)
-    except Exception as exc:  # Rasterio/Shapely expose several parse exception types.
+        result, _ = to_metric(shape(geometry), crs)
+    except Exception as exc:  # Shapely and pyproj expose several parse exception types.
         raise FusionError("Candidate geometry must be valid WGS84 GeoJSON.") from exc
     if result.is_empty:
         raise FusionError("Candidate geometry is empty.")
     return result
 
 
-def _wgs84_geometry(geometry: BaseGeometry) -> dict[str, Any]:
-    return transform_geom("EPSG:3857", "EPSG:4326", mapping(geometry), precision=8)
+def _wgs84_geometry(geometry: BaseGeometry, crs: Any) -> dict[str, Any]:
+    return from_metric(geometry, crs)
+
+
+def _fusion_crs(candidate_inputs: dict[str, dict[str, Any]]) -> Any:
+    """Choose one ground-metre CRS shared by every source being fused."""
+    for collection in candidate_inputs.values():
+        features = collection.get("features") if isinstance(collection, dict) else None
+        for feature in features if isinstance(features, list) else []:
+            if isinstance(feature, dict) and isinstance(feature.get("geometry"), dict):
+                try:
+                    return metric_crs_for(feature["geometry"])
+                except Exception:  # noqa: BLE001 - try the next candidate geometry
+                    continue
+    raise FusionError("No usable candidate geometry to establish a measurement CRS.")
 
 
 def _preferred_classification(classifications: Iterable[str]) -> str:
@@ -50,11 +64,11 @@ def _preferred_classification(classifications: Iterable[str]) -> str:
     return max(counts, key=key)
 
 
-def _feature_record(source: str, feature: dict[str, Any], ordinal: int) -> dict[str, Any] | None:
+def _feature_record(source: str, feature: dict[str, Any], ordinal: int, crs: Any) -> dict[str, Any] | None:
     geometry = feature.get("geometry")
     if not isinstance(geometry, dict):
         return None
-    metric = _metric_geometry(geometry)
+    metric = _metric_geometry(geometry, crs)
     properties = feature.get("properties")
     if not isinstance(properties, dict):
         properties = {}
@@ -70,7 +84,7 @@ def _feature_record(source: str, feature: dict[str, Any], ordinal: int) -> dict[
     }
 
 
-def _input_records(candidate_inputs: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+def _input_records(candidate_inputs: dict[str, dict[str, Any]], crs: Any) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     for source, collection in candidate_inputs.items():
         if not source.strip():
@@ -80,7 +94,7 @@ def _input_records(candidate_inputs: dict[str, dict[str, Any]]) -> list[dict[str
         for ordinal, feature in enumerate(collection["features"], start=1):
             if not isinstance(feature, dict) or feature.get("type") != "Feature":
                 continue
-            record = _feature_record(source, feature, ordinal)
+            record = _feature_record(source, feature, ordinal, crs)
             if record is not None:
                 records.append(record)
     return records
@@ -96,7 +110,8 @@ def fuse_candidates(candidate_inputs: dict[str, dict[str, Any]], *, merge_distan
     """
     if merge_distance_m < 0:
         raise FusionError("merge_distance_m cannot be negative.")
-    records = _input_records(candidate_inputs)
+    crs = _fusion_crs(candidate_inputs)
+    records = _input_records(candidate_inputs, crs)
     parents = list(range(len(records)))
 
     def find(index: int) -> int:
@@ -131,7 +146,7 @@ def fuse_candidates(candidate_inputs: dict[str, dict[str, Any]], *, merge_distan
         features.append(
             {
                 "type": "Feature",
-                "geometry": _wgs84_geometry(merged),
+                "geometry": _wgs84_geometry(merged, crs),
                 "properties": {
                     "candidate_id": candidate_id,
                     "classification": _preferred_classification(classifications),

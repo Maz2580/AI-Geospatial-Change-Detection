@@ -15,6 +15,7 @@ from rasterio.features import geometry_mask, shapes
 from rasterio.warp import Resampling, reproject, transform_geom
 from shapely.geometry import mapping, shape
 
+from .geodesy import ground_area_m2
 from .regularisation import RegularisationConfig, regularise_geometries
 
 
@@ -230,9 +231,13 @@ def _separate_shadow_components(raw_mask: np.ndarray, shadow_uncertain: np.ndarr
 
 
 def _area_m2(geometry, source_crs) -> float:
-    if source_crs and source_crs.is_projected:
-        return float(geometry.area)
-    return float(shape(transform_geom(source_crs, "EPSG:3857", mapping(geometry), precision=12)).area)
+    """Return true ground area.
+
+    A projected CRS is not automatically a ground-metre CRS: Nearmap tile
+    mosaics are EPSG:3857, where area is inflated by sec(latitude)^2 -- 1.60x at
+    Melbourne. See ``geodesy.ground_area_m2``.
+    """
+    return ground_area_m2(geometry, source_crs)
 
 
 def _write_raster(path: Path, array: np.ndarray, profile: dict[str, Any], *, dtype: str, nodata: float | int) -> None:

@@ -11,9 +11,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-from rasterio.warp import transform_geom
 from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
+
+from .geodesy import metric_crs_for, to_metric
 
 
 class ReferenceEvaluationError(ValueError):
@@ -30,7 +31,20 @@ def _load_json(path: str | Path, *, description: str) -> dict[str, Any]:
     return value
 
 
-def _features(collection: dict[str, Any], *, description: str) -> dict[int, BaseGeometry]:
+def _evaluation_crs(*collections: dict[str, Any]) -> Any:
+    """Choose one ground-metre CRS shared by references and predictions."""
+    for collection in collections:
+        values = collection.get("features") if isinstance(collection, dict) else None
+        for feature in values if isinstance(values, list) else []:
+            if isinstance(feature, dict) and isinstance(feature.get("geometry"), dict):
+                try:
+                    return metric_crs_for(feature["geometry"])
+                except Exception:  # noqa: BLE001 - try the next candidate geometry
+                    continue
+    raise ReferenceEvaluationError("No usable geometry to establish a measurement CRS.")
+
+
+def _features(collection: dict[str, Any], crs: Any, *, description: str) -> dict[int, BaseGeometry]:
     values = collection.get("features")
     if collection.get("type") != "FeatureCollection" or not isinstance(values, list):
         raise ReferenceEvaluationError(f"{description} must be a GeoJSON FeatureCollection.")
@@ -43,11 +57,9 @@ def _features(collection: dict[str, Any], *, description: str) -> dict[int, Base
         if not isinstance(candidate_id, int) or candidate_id <= 0:
             raise ReferenceEvaluationError(f"{description} candidate IDs must be positive integers.")
         try:
-            geometry = shape(transform_geom("EPSG:4326", "EPSG:3857", feature["geometry"], precision=6))
+            geometry, _ = to_metric(shape(feature["geometry"]), crs)
         except Exception as exc:
             raise ReferenceEvaluationError(f"{description} contains invalid WGS84 geometry.") from exc
-        if not geometry.is_valid:
-            geometry = geometry.buffer(0)
         if geometry.is_empty or geometry.area <= 0:
             continue
         results[candidate_id] = geometry
@@ -88,8 +100,9 @@ def evaluate_reference_candidates(
     """Match detection candidates to human-confirmed visible reference changes."""
     if match_distance_m < 0:
         raise ReferenceEvaluationError("Match distance cannot be negative.")
-    reference = _features(reference_collection, description="reference candidates")
-    predictions = _features(prediction_collection, description="prediction candidates")
+    crs = _evaluation_crs(reference_collection, prediction_collection)
+    reference = _features(reference_collection, crs, description="reference candidates")
+    predictions = _features(prediction_collection, crs, description="prediction candidates")
     real_ids, rejected_ids = _real_reference_ids(label_document)
     missing = sorted((real_ids | rejected_ids) - set(reference))
     if missing:

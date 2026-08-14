@@ -21,10 +21,11 @@ from dataclasses import dataclass
 import logging
 from typing import Any
 
-from rasterio.warp import transform_geom
 from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
+
+from .geodesy import metric_crs_for, to_metric
 
 logger = logging.getLogger(__name__)
 
@@ -54,14 +55,25 @@ class CorroborationConfig:
             raise CorroborationError("min_sources_for_corroborated must be at least one.")
 
 
-def _metric(geometry: dict[str, Any]) -> BaseGeometry:
-    result = shape(transform_geom("EPSG:4326", "EPSG:3857", geometry, precision=6))
-    if not result.is_valid:
-        result = result.buffer(0)
+def _metric(geometry: dict[str, Any], crs: Any) -> BaseGeometry:
+    """Project into true ground metres, so support_distance_m means metres."""
+    result, _ = to_metric(shape(geometry), crs)
     return result
 
 
-def _evidence_union(collection: dict[str, Any]) -> BaseGeometry | None:
+def _measurement_crs(collection: dict[str, Any]) -> Any:
+    """Pick one ground-metre CRS for the candidates and all their evidence."""
+    features = collection.get("features")
+    for feature in features if isinstance(features, list) else []:
+        if isinstance(feature, dict) and isinstance(feature.get("geometry"), dict):
+            try:
+                return metric_crs_for(feature["geometry"])
+            except Exception:  # noqa: BLE001 - try the next candidate geometry
+                continue
+    return None
+
+
+def _evidence_union(collection: dict[str, Any], crs: Any) -> BaseGeometry | None:
     features = collection.get("features")
     if collection.get("type") != "FeatureCollection" or not isinstance(features, list):
         raise CorroborationError("Evidence must be a GeoJSON FeatureCollection.")
@@ -69,7 +81,7 @@ def _evidence_union(collection: dict[str, Any]) -> BaseGeometry | None:
     for feature in features:
         if not isinstance(feature, dict) or not isinstance(feature.get("geometry"), dict):
             continue
-        geometry = _metric(feature["geometry"])
+        geometry = _metric(feature["geometry"], crs)
         if not geometry.is_empty and geometry.area > 0:
             geometries.append(geometry)
     return unary_union(geometries) if geometries else None
@@ -89,13 +101,17 @@ def corroborate_footprints(
     if footprint_candidates.get("type") != "FeatureCollection" or not isinstance(features, list):
         raise CorroborationError("Footprint candidates must be a GeoJSON FeatureCollection.")
 
-    unions = {name: _evidence_union(collection) for name, collection in evidence.items()}
+    crs = _measurement_crs(footprint_candidates)
+    if crs is None:
+        raise CorroborationError("No usable candidate geometry to establish a measurement CRS.")
+
+    unions = {name: _evidence_union(collection, crs) for name, collection in evidence.items()}
     unions = {name: geometry for name, geometry in unions.items() if geometry is not None}
     combined = unary_union(list(unions.values())) if unions else None
 
     tier_counts: dict[str, int] = {tier: 0 for tier in SUPPORT_TIERS}
     for feature in features:
-        geometry = _metric(feature["geometry"])
+        geometry = _metric(feature["geometry"], crs)
         if geometry.is_empty or geometry.area <= 0:
             continue
 
