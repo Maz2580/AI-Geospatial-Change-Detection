@@ -8,6 +8,19 @@ optionally to align neighbouring buildings onto a shared estate/street grid.
 Regularisation is a batch operation: neighbour alignment needs to see the whole
 candidate set at once, so callers should collect geometries first and pass them
 in together rather than regularising one polygon at a time.
+
+**It is off by default, because measured against human-drawn roofs it makes the
+outlines worse.**  It was adopted on an edge-angle measurement -- error fell from
+15.87 deg to 4.97 deg -- which describes angular consistency, not position.  The
+regulariser assumes its input boundary is roughly right and merely ragged, so it
+estimates a dominant orientation from the polygon and snaps edges to it.  When
+the input is a probability-threshold contour that is already systematically
+wrong, that orientation is estimated from the error and snapping propagates it
+along edges that had been closer to correct.  The result looks more like a
+building and sits further from one.
+
+Turn it back on when the boundary reaching it is known to be close, or when a
+tidy outline matters more than an accurate one.
 """
 
 from __future__ import annotations
@@ -30,9 +43,15 @@ class RegularisationError(ValueError):
 
 @dataclass(frozen=True)
 class RegularisationConfig:
-    """Settings for polygon regularisation."""
+    """Settings for polygon regularisation.
 
-    enabled: bool = True
+    Off by default. Measured against 80 human-drawn roofs in the UC5 gold set,
+    regularisation lowered boundary F1 at 0.25 m from 0.478 to 0.340 and raised
+    the number of buildings missed entirely -- at every threshold tested. See
+    ``docs/outline_accuracy.md``.
+    """
+
+    enabled: bool = False
     simplify_tolerance_m: float = 0.2
     allow_45_degree: bool = True
     align_neighbours: bool = True

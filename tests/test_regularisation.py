@@ -52,6 +52,15 @@ class ToleranceTests(unittest.TestCase):
 
 
 class ConfigValidationTests(unittest.TestCase):
+    def test_regularisation_is_off_by_default(self) -> None:
+        """Measured against human-drawn roofs it lowers boundary accuracy.
+
+        Pinned as a test so the default cannot drift back without a decision:
+        boundary F1 at 0.25 m fell from 0.478 to 0.340 with it enabled. See
+        docs/outline_accuracy.md.
+        """
+        self.assertFalse(RegularisationConfig().enabled)
+
     def test_rejects_non_positive_tolerance(self) -> None:
         with self.assertRaises(RegularisationError):
             RegularisationConfig(simplify_tolerance_m=0).validate()
@@ -65,11 +74,14 @@ class RegulariseGeometriesTests(unittest.TestCase):
     def setUp(self) -> None:
         self.projected = CRS.from_epsg(7855)
         self.geographic = CRS.from_epsg(4326)
+        # These exercise the regulariser itself, so they enable it explicitly
+        # rather than depending on a default that is now off.
+        self.enabled = RegularisationConfig(enabled=True)
 
     def test_straightens_staircase_edges_while_preserving_area(self) -> None:
         original = _staircase_rectangle()
 
-        result = regularise_geometries([original], self.projected)
+        result = regularise_geometries([original], self.projected, self.enabled)
 
         self.assertEqual(len(result), 1)
         self.assertLess(_edge_angle_deviation(result[0]), _edge_angle_deviation(original))
@@ -86,7 +98,7 @@ class RegulariseGeometriesTests(unittest.TestCase):
     def test_skips_regularisation_for_geographic_crs(self) -> None:
         original = Polygon([(0, 0), (0.001, 0), (0.001, 0.001), (0, 0.001)])
 
-        result = regularise_geometries([original], self.geographic)
+        result = regularise_geometries([original], self.geographic, self.enabled)
 
         self.assertEqual(result[0].wkt, original.wkt)
 
@@ -97,14 +109,14 @@ class RegulariseGeometriesTests(unittest.TestCase):
             Polygon([(40, 0), (48, 0), (48, 5), (40, 5)]),
         ]
 
-        result = regularise_geometries(geometries, self.projected)
+        result = regularise_geometries(geometries, self.projected, self.enabled)
 
         self.assertEqual(len(result), len(geometries))
         for source, regularised in zip(geometries, result):
             self.assertLess(source.centroid.distance(regularised.centroid), 1.0)
 
     def test_handles_empty_input(self) -> None:
-        self.assertEqual(regularise_geometries([], self.projected), [])
+        self.assertEqual(regularise_geometries([], self.projected, self.enabled), [])
 
 
 if __name__ == "__main__":

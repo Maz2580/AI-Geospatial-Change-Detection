@@ -1,0 +1,325 @@
+{
+  "configuration": "refined_boundary_default",
+  "metric_crs": "EPSG:7855",
+  "boundary_tolerances_m": [
+    0.25,
+    0.5,
+    1.0,
+    2.0
+  ],
+  "model_config": {
+    "threshold": 0.4371,
+    "min_area_m2": 6.0,
+    "regularisation_enabled": false,
+    "simplify_m": 0.25
+  },
+  "chips": [
+    {
+      "chip_id": "909",
+      "provenance": {
+        "raster_crs": "EPSG:3857",
+        "footprint_count": 21
+      },
+      "label_count": 32,
+      "label_count_strict": 32,
+      "predicted_count": 21,
+      "detection": {
+        "matched_labels": 19,
+        "missed_labels": 9,
+        "false_alarms": 2,
+        "split_labels": 0,
+        "merged_predictions": 3,
+        "recall": 0.7188,
+        "precision": 0.9048
+      },
+      "outline": {
+        "instance_count": 19,
+        "median_iou": 0.8312,
+        "median_boundary_f1": {
+          "0.25": 0.7372,
+          "0.5": 0.9245,
+          "1.0": 1.0,
+          "2.0": 1.0
+        },
+        "median_hausdorff_95_m": 0.533,
+        "median_area_error_fraction": -0.0535,
+        "median_predicted_vertices": 13,
+        "median_label_vertices": 14
+      },
+      "outline_by_area_band": {
+        "0-25 m2": {
+          "instance_count": 7,
+          "median_iou": 0.8812,
+          "median_boundary_f1": {
+            "0.25": 0.9123,
+            "0.5": 1.0,
+            "1.0": 1.0,
+            "2.0": 1.0
+          },
+          "median_hausdorff_95_m": 0.339,
+          "median_area_error_fraction": -0.0757,
+          "median_predicted_vertices": 8,
+          "median_label_vertices": 10
+        },
+        "100-400 m2": {
+          "instance_count": 6,
+          "median_iou": 0.7635,
+          "median_boundary_f1": {
+            "0.25": 0.5649,
+            "0.5": 0.6215,
+            "1.0": 0.6942,
+            "2.0": 0.8126
+          },
+          "median_hausdorff_95_m": 3.372,
+          "median_area_error_fraction": -0.1213,
+          "median_predicted_vertices": 42,
+          "median_label_vertices": 20
+        },
+        "25-100 m2": {
+          "instance_count": 6,
+          "median_iou": 0.7797,
+          "median_boundary_f1": {
+            "0.25": 0.7202,
+            "0.5": 0.8307,
+            "1.0": 0.8955,
+            "2.0": 0.94
+          },
+          "median_hausdorff_95_m": 1.632,
+          "median_area_error_fraction": -0.0373,
+          "median_predicted_vertices": 14,
+          "median_label_vertices": 14
+        }
+      },
+      "outline_by_kind": {
+        "house": {
+          "instance_count": 19,
+          "median_iou": 0.8312,
+          "median_boundary_f1": {
+            "0.25": 0.7372,
+            "0.5": 0.9245,
+            "1.0": 1.0,
+            "2.0": 1.0
+          },
+          "median_hausdorff_95_m": 0.533,
+          "median_area_error_fraction": -0.0535,
+          "median_predicted_vertices": 13,
+          "median_label_vertices": 14
+        }
+      },
+      "detected_any_way": 22
+    },
+    {
+      "chip_id": "912",
+      "provenance": {
+        "raster_crs": "EPSG:3857",
+        "footprint_count": 19
+      },
+      "label_count": 24,
+      "label_count_strict": 24,
+      "predicted_count": 19,
+      "detection": {
+        "matched_labels": 17,
+        "missed_labels": 0,
+        "false_alarms": 0,
+        "split_labels": 1,
+        "merged_predictions": 3,
+        "recall": 1.0,
+        "precision": 1.0
+      },
+      "outline": {
+        "instance_count": 17,
+        "median_iou": 0.8493,
+        "median_boundary_f1": {
+          "0.25": 0.7333,
+          "0.5": 0.8442,
+          "1.0": 0.866,
+          "2.0": 0.9309
+        },
+        "median_hausdorff_95_m": 2.453,
+        "median_area_error_fraction": 0.007,
+        "median_predicted_vertices": 31,
+        "median_label_vertices": 22
+      },
+      "outline_by_area_band": {
+        "0-25 m2": {
+          "instance_count": 4,
+          "median_iou": 0.9089,
+          "median_boundary_f1": {
+            "0.25": 0.9836,
+            "0.5": 1.0,
+            "1.0": 1.0,
+            "2.0": 1.0
+          },
+          "median_hausdorff_95_m": 0.202,
+          "median_area_error_fraction": 0.0315,
+          "median_predicted_vertices": 8,
+          "median_label_vertices": 8
+        },
+        "100-400 m2": {
+          "instance_count": 11,
+          "median_iou": 0.8051,
+          "median_boundary_f1": {
+            "0.25": 0.6465,
+            "0.5": 0.7115,
+            "1.0": 0.8326,
+            "2.0": 0.9071
+          },
+          "median_hausdorff_95_m": 3.092,
+          "median_area_error_fraction": -0.0187,
+          "median_predicted_vertices": 35,
+          "median_label_vertices": 24
+        },
+        "25-100 m2": {
+          "instance_count": 2,
+          "median_iou": 0.4079,
+          "median_boundary_f1": {
+            "0.25": 0.4061,
+            "0.5": 0.5035,
+            "1.0": 0.5913,
+            "2.0": 0.7545
+          },
+          "median_hausdorff_95_m": 6.205,
+          "median_area_error_fraction": 0.084,
+          "median_predicted_vertices": 14,
+          "median_label_vertices": 14
+        }
+      },
+      "outline_by_kind": {
+        "(blank)": {
+          "instance_count": 1,
+          "median_iou": 0.8493,
+          "median_boundary_f1": {
+            "0.25": 0.8393,
+            "0.5": 1.0,
+            "1.0": 1.0,
+            "2.0": 1.0
+          },
+          "median_hausdorff_95_m": 0.403,
+          "median_area_error_fraction": 0.1471,
+          "median_predicted_vertices": 9,
+          "median_label_vertices": 5
+        },
+        "house": {
+          "instance_count": 16,
+          "median_iou": 0.8362,
+          "median_boundary_f1": {
+            "0.25": 0.701,
+            "0.5": 0.7779,
+            "1.0": 0.8493,
+            "2.0": 0.919
+          },
+          "median_hausdorff_95_m": 2.772,
+          "median_area_error_fraction": -0.0058,
+          "median_predicted_vertices": 31,
+          "median_label_vertices": 22
+        }
+      },
+      "detected_any_way": 21
+    },
+    {
+      "chip_id": "913",
+      "provenance": {
+        "raster_crs": "EPSG:3857",
+        "footprint_count": 17
+      },
+      "label_count": 24,
+      "label_count_strict": 24,
+      "predicted_count": 17,
+      "detection": {
+        "matched_labels": 16,
+        "missed_labels": 0,
+        "false_alarms": 1,
+        "split_labels": 0,
+        "merged_predictions": 7,
+        "recall": 1.0,
+        "precision": 0.9412
+      },
+      "outline": {
+        "instance_count": 16,
+        "median_iou": 0.4881,
+        "median_boundary_f1": {
+          "0.25": 0.386,
+          "0.5": 0.4798,
+          "1.0": 0.5936,
+          "2.0": 0.8052
+        },
+        "median_hausdorff_95_m": 4.256,
+        "median_area_error_fraction": 0.0487,
+        "median_predicted_vertices": 32,
+        "median_label_vertices": 24
+      },
+      "outline_by_area_band": {
+        "0-25 m2": {
+          "instance_count": 2,
+          "median_iou": 0.3493,
+          "median_boundary_f1": {
+            "0.25": 0.4004,
+            "0.5": 0.4996,
+            "1.0": 0.5936,
+            "2.0": 0.8024
+          },
+          "median_hausdorff_95_m": 3.997,
+          "median_area_error_fraction": -0.1373,
+          "median_predicted_vertices": 11,
+          "median_label_vertices": 15
+        },
+        "100-400 m2": {
+          "instance_count": 12,
+          "median_iou": 0.4881,
+          "median_boundary_f1": {
+            "0.25": 0.3723,
+            "0.5": 0.4299,
+            "1.0": 0.4933,
+            "2.0": 0.7046
+          },
+          "median_hausdorff_95_m": 7.266,
+          "median_area_error_fraction": 0.0487,
+          "median_predicted_vertices": 46,
+          "median_label_vertices": 27
+        },
+        "25-100 m2": {
+          "instance_count": 2,
+          "median_iou": 0.7866,
+          "median_boundary_f1": {
+            "0.25": 0.4423,
+            "0.5": 0.6386,
+            "1.0": 0.8428,
+            "2.0": 0.9537
+          },
+          "median_hausdorff_95_m": 1.808,
+          "median_area_error_fraction": 0.0328,
+          "median_predicted_vertices": 24,
+          "median_label_vertices": 15
+        }
+      },
+      "outline_by_kind": {
+        "house": {
+          "instance_count": 16,
+          "median_iou": 0.4881,
+          "median_boundary_f1": {
+            "0.25": 0.386,
+            "0.5": 0.4798,
+            "1.0": 0.5936,
+            "2.0": 0.8052
+          },
+          "median_hausdorff_95_m": 4.256,
+          "median_area_error_fraction": 0.0487,
+          "median_predicted_vertices": 32,
+          "median_label_vertices": 24
+        }
+      },
+      "detected_any_way": 23
+    }
+  ],
+  "totals": {
+    "labels": 80,
+    "predictions": 57,
+    "matched": 52,
+    "missed": 9,
+    "false_alarms": 3,
+    "splits": 1,
+    "merges": 13,
+    "scored_outlines": 52
+  },
+  "warning": "Gold labels are evaluation-only. They must never be used to train, tune, or seed a detector, and outline scores here describe only the chips listed."
+}

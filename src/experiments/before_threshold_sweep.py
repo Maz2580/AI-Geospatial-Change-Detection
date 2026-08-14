@@ -55,7 +55,9 @@ def vectorise(probability: np.ndarray, valid: np.ndarray, profile: dict[str, Any
             continue
         raw.append(geometry)
 
-    geometries = regularise_geometries(raw, crs, RegularisationConfig(simplify_tolerance_m=0.2))
+    # Pinned on: the recorded sweep was measured with regularisation, which has
+    # since become off by default.
+    geometries = regularise_geometries(raw, crs, RegularisationConfig(enabled=True, simplify_tolerance_m=0.2))
     features = []
     for geometry in geometries:
         features.append(

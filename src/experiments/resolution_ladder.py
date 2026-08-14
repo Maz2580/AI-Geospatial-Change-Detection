@@ -66,6 +66,9 @@ if __name__ == "__main__":
         config = DinoBuildingsConfig(
             min_area_m2=10.0,
             regularisation=RegularisationConfig(
+                # Pinned on: this experiment's recorded result was measured with
+                # regularisation, which has since become off by default.
+                enabled=True,
                 simplify_tolerance_m=tolerance_for_pixel_size(target_res),
             ),
         )
