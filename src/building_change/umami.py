@@ -46,7 +46,7 @@ class UmamiAnalysisRequest:
     bbox: UmamiBoundingBox
     before_date: str
     after_date: str
-    detector: str = "dfine"
+    detector: str = "detector_v5"
     mode: str = "change"
     long_side: int = 768
     percentile: float = 90.0
@@ -55,8 +55,9 @@ class UmamiAnalysisRequest:
     regularize_method: str = "hybrid"
 
     def __post_init__(self) -> None:
-        if self.detector not in {"dfine", "segformer", "maskrcnn"}:
-            raise ValueError("detector must be one of: dfine, segformer, maskrcnn.")
+        valid_detectors = {"detector_v5", "v5", "dfine_v5", "dfine", "segformer", "maskrcnn"}
+        if self.detector not in valid_detectors:
+            raise ValueError(f"detector must be one of: {', '.join(sorted(valid_detectors))}.")
         if self.mode not in {"change", "new_buildings", "object_change", "extract_footprints"}:
             raise ValueError("Unsupported UMAMI analysis mode.")
         if self.long_side < 128:

@@ -1,0 +1,23 @@
+{
+  "calibration_status": "success",
+  "ground_truth_count": 14,
+  "optimal_parameters": {
+    "min_area_m2": 70.0,
+    "min_rectangularity": 0.7,
+    "min_iou_consensus": 0.1,
+    "require_vlm_confirmation": true,
+    "enable_shadow_subtraction": true,
+    "enable_orthogonal_regularisation": true,
+    "allow_45_degree_angles": true,
+    "primary_detector": "detector_v5",
+    "fallback_detector": "bit_levir_adaptformer"
+  },
+  "calibrated_performance": {
+    "precision": 1.0,
+    "recall": 0.6429,
+    "f1_score": 0.7826,
+    "mean_iou": 1.0,
+    "true_positives": 9,
+    "false_positives": 0
+  }
+}

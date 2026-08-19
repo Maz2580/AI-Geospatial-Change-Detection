@@ -29,7 +29,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from building_change.detector import DetectionConfig, run_detection
 from building_change.dino_change import DINOChangeConfig, DINOChangeError, run_dino_change_detection
-from building_change.dino_buildings import DinoBuildingsConfig, run_dino_building_comparison, DinoBuildingsError
+from building_change.whu_buildings import WhuBuildingsConfig, run_whu_building_comparison, WhuBuildingsError
+from building_change.bit_inference import BITConfig, run_bit_change_detection, BITInferenceError
 from building_change.fusion import fuse_candidates, FusionError
 
 logging.basicConfig(
@@ -51,9 +52,17 @@ def run_enhanced_pipeline(
     skip_dino_buildings: bool = False,
 ) -> dict:
     """Run all detection channels and fuse results."""
-    output_dir.mkdir(parents=True, exist_ok=True)
-    results = {}
-    candidate_inputs: dict[str, dict] = {}
+    # Load calibrated configuration if present
+    calibrated_config_path = Path("config/calibrated_detection_config.json")
+    calibrated_params = {}
+    if calibrated_config_path.is_file():
+        try:
+            calibrated_data = json.loads(calibrated_config_path.read_text(encoding="utf-8"))
+            calibrated_params = calibrated_data.get("optimal_parameters", {})
+            logger.info("Loaded calibrated detection configuration from %s", calibrated_config_path)
+            logger.info("Calibrated parameters: %s", json.dumps(calibrated_params))
+        except Exception as exc:
+            logger.warning("Failed to parse calibrated config: %s", exc)
 
     # ---- Channel 1: Existing pixel-level detector ----
     logger.info("=" * 60)
@@ -118,35 +127,60 @@ def run_enhanced_pipeline(
             logger.error("DINOv2 detection failed unexpectedly: %s", exc)
             results["dino_semantic"] = {"error": str(exc)}
 
-    # ---- Channel 3: DINOv3s Building Footprints ----
+    # ---- Channel 3: WHU-Building Unet++ Footprints ----
     if not skip_dino_buildings:
         logger.info("=" * 60)
-        logger.info("CHANNEL 3: DINOv3s Building Footprint Extraction")
+        logger.info("CHANNEL 3: WHU-Building Footprint Extraction")
         logger.info("=" * 60)
         t0 = time.time()
         try:
-            dino_bldg_dir = output_dir / "dino_buildings"
-            dino_bldg_report = run_dino_building_comparison(
-                before_image, after_image, dino_bldg_dir,
-                config=DinoBuildingsConfig(),
+            whu_bldg_dir = output_dir / "whu_buildings"
+            whu_bldg_report = run_whu_building_comparison(
+                before_image, after_image, whu_bldg_dir,
+                config=WhuBuildingsConfig(),
                 before_capture_date=before_date,
                 after_capture_date=after_date,
             )
-            results["dino_buildings"] = dino_bldg_report
-            cand_count = dino_bldg_report.get("comparison", {}).get("candidate_count", 0)
-            logger.info("DINOv3s footprints: %d candidates (%.1fs)", cand_count, time.time() - t0)
+            results["whu_buildings"] = whu_bldg_report
+            cand_count = whu_bldg_report.get("comparison", {}).get("candidate_count", 0)
+            logger.info("WHU footprints: %d candidates (%.1fs)", cand_count, time.time() - t0)
 
-            candidates_path = dino_bldg_dir / "footprint_change_candidates.geojson"
+            candidates_path = whu_bldg_dir / "after_whu_building_footprints.geojson"
             if candidates_path.exists():
                 collection = json.loads(candidates_path.read_text(encoding="utf-8"))
                 if collection.get("features"):
-                    candidate_inputs["dino_footprints"] = collection
-        except DinoBuildingsError as exc:
-            logger.error("DINOv3s footprints failed: %s", exc)
-            results["dino_buildings"] = {"error": str(exc)}
-        except Exception as exc:
-            logger.error("DINOv3s footprints failed unexpectedly: %s", exc)
-            results["dino_buildings"] = {"error": str(exc)}
+                    candidate_inputs["whu_footprints"] = collection
+        except WhuBuildingsError as exc:
+            logger.error("WHU footprints failed: %s", exc)
+            results["whu_buildings"] = {"error": str(exc)}
+    # ---- Channel 4: BIT Bitemporal Transformer (LEVIR-CD) ----
+    logger.info("=" * 60)
+    logger.info("CHANNEL 4: SOTA AdaptFormer LEVIR-CD Bitemporal Change Detection")
+    logger.info("=" * 60)
+    t0 = time.time()
+    try:
+        bit_dir = output_dir / "bit_bitemporal"
+        bit_report = run_bit_change_detection(
+            before_image, after_image, bit_dir,
+            config=BITConfig(tile_px=1024, stride_px=768, change_threshold=0.50),
+            before_capture_date=before_date,
+            after_capture_date=after_date,
+        )
+        results["bit_bitemporal"] = bit_report
+        logger.info("BIT Bitemporal detection: %d candidates (%.1fs)",
+                     bit_report["candidate_count"], time.time() - t0)
+
+        candidates_path = bit_dir / "bit_change_candidates.geojson"
+        if candidates_path.exists():
+            collection = json.loads(candidates_path.read_text(encoding="utf-8"))
+            if collection.get("features"):
+                candidate_inputs["bit_bitemporal"] = collection
+    except BITInferenceError as exc:
+        logger.error("BIT Bitemporal detection failed: %s", exc)
+        results["bit_bitemporal"] = {"error": str(exc)}
+    except Exception as exc:
+        logger.error("BIT Bitemporal detection failed unexpectedly: %s", exc)
+        results["bit_bitemporal"] = {"error": str(exc)}
 
     # ---- Fusion ----
     logger.info("=" * 60)

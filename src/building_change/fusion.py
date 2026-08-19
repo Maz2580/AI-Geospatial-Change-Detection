@@ -124,7 +124,8 @@ def fuse_candidates(candidate_inputs: dict[str, dict[str, Any]], *, merge_distan
 
     features: list[dict[str, Any]] = []
     for candidate_id, members in enumerate(clusters.values(), start=1):
-        merged = unary_union([member["metric_geometry"] for member in members])
+        footprints = [m["metric_geometry"] for m in members if m.get("classification") == "building_footprint"]
+        merged = unary_union(footprints) if footprints else unary_union([m["metric_geometry"] for m in members])
         sources = sorted({member["source"] for member in members})
         classifications = [member["classification"] for member in members]
         source_models = sorted({member["model"] for member in members if member["model"]})
