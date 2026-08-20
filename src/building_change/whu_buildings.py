@@ -99,7 +99,7 @@ def _load_model(model_path: Path) -> torch.nn.Module:
         in_channels=3,
         classes=2,
     )
-    state_dict = torch.load(model_path, map_location="cpu")
+    state_dict = torch.load(model_path, map_location="cpu", weights_only=True)
     model.load_state_dict(state_dict)
     model.eval()
     return model

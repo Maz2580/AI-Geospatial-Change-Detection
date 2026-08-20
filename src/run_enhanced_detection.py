@@ -5,6 +5,7 @@ This script demonstrates the combined pipeline:
   2. DINOv2 semantic change detection (zero-shot, no training)
   3. DINOv3s building footprint comparison
   4. Fusion of all sources
+  5. Post-fusion architectural filter (calibrated config)
 
 Usage:
     python src/run_enhanced_detection.py \
@@ -51,7 +52,9 @@ def run_enhanced_pipeline(
     skip_dino: bool = False,
     skip_dino_buildings: bool = False,
 ) -> dict:
-    """Run all detection channels and fuse results."""
+    """Run all detection channels, fuse results, and apply architectural filter."""
+    results: dict = {}
+    candidate_inputs: dict[str, dict] = {}
     # Load calibrated configuration if present
     calibrated_config_path = Path("config/calibrated_detection_config.json")
     calibrated_params = {}
@@ -230,6 +233,44 @@ def run_enhanced_pipeline(
     else:
         logger.warning("No candidates from any source — nothing to fuse.")
         results["fusion"] = {"total_fused_candidates": 0, "sources_used": []}
+
+    # ---- Post-Fusion Architectural Filter ----
+    if calibrated_params and results.get("fusion", {}).get("total_fused_candidates", 0) > 0:
+        logger.info("=" * 60)
+        logger.info("POST-FUSION: Applying calibrated architectural filter")
+        logger.info("=" * 60)
+        try:
+            from building_change.architectural_filter import apply_architectural_filter
+            fused_path = output_dir / "enhanced_fused_candidates.geojson"
+            if fused_path.is_file():
+                fused_collection = json.loads(fused_path.read_text(encoding="utf-8"))
+                filtered_collection = apply_architectural_filter(
+                    fused_collection,
+                    calibrated_params,
+                )
+                filtered_path = output_dir / "filtered_building_candidates.geojson"
+                filtered_path.write_text(
+                    json.dumps(filtered_collection, indent=2), encoding="utf-8"
+                )
+                results["architectural_filter"] = {
+                    "input_candidates": len(fused_collection.get("features", [])),
+                    "output_candidates": len(filtered_collection.get("features", [])),
+                    "eliminated": (
+                        len(fused_collection.get("features", []))
+                        - len(filtered_collection.get("features", []))
+                    ),
+                    "config_applied": calibrated_params,
+                    "output": str(filtered_path),
+                }
+                logger.info(
+                    "Architectural filter: %d → %d candidates (%d eliminated)",
+                    results["architectural_filter"]["input_candidates"],
+                    results["architectural_filter"]["output_candidates"],
+                    results["architectural_filter"]["eliminated"],
+                )
+        except Exception as exc:
+            logger.error("Architectural filter failed: %s", exc)
+            results["architectural_filter"] = {"error": str(exc)}
 
     # Write overall report
     overall_report_path = output_dir / "enhanced_detection_report.json"

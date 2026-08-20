@@ -132,17 +132,32 @@ class UmamiClient:
             raise UmamiApiError("UMAMI login succeeded but did not return an access token.")
         self._token = token
 
-    def _headers(self) -> dict[str, str]:
-        if self._token is None:
+    def _headers(self, *, force_refresh: bool = False) -> dict[str, str]:
+        if self._token is None or force_refresh:
             self.authenticate()
         return {"Authorization": f"Bearer {self._token}", "Accept": "application/json"}
 
+    def _request(self, method: str, path: str, **kwargs) -> "requests.Response":
+        """Make an authenticated request, retrying once on 401 (expired token)."""
+        kwargs.setdefault("timeout", self.timeout_seconds)
+        response = self.session.request(
+            method, self._url(path),
+            headers={**self._headers(), **kwargs.pop("headers", {})},
+            **kwargs,
+        )
+        if response.status_code == 401:
+            response = self.session.request(
+                method, self._url(path),
+                headers={**self._headers(force_refresh=True), **kwargs.pop("headers", {})},
+                **kwargs,
+            )
+        return response
+
     def start_analysis(self, request: UmamiAnalysisRequest) -> str:
-        response = self.session.post(
-            self._url("/api/encroachment/analyze"),
+        response = self._request(
+            "POST", "/api/encroachment/analyze",
             json=request.as_payload(),
-            headers={**self._headers(), "Content-Type": "application/json"},
-            timeout=self.timeout_seconds,
+            headers={"Content-Type": "application/json"},
         )
         payload = self._payload(response, "UMAMI analysis submission")
         job_id = payload.get("job_id")
@@ -151,11 +166,7 @@ class UmamiClient:
         return job_id
 
     def get_analysis_status(self, job_id: str) -> dict[str, Any]:
-        response = self.session.get(
-            self._url(f"/api/encroachment/analyze/{job_id}"),
-            headers=self._headers(),
-            timeout=self.timeout_seconds,
-        )
+        response = self._request("GET", f"/api/encroachment/analyze/{job_id}")
         return self._payload(response, "UMAMI analysis status")
 
     def wait_for_analysis(

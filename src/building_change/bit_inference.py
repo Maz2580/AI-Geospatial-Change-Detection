@@ -107,13 +107,22 @@ def _resolve_weights(model_path: str | Path | None, cache_dir: str | Path) -> Pa
         return None
 
 
+_CACHED_MODEL: "torch.nn.Module | None" = None
+
+
 def _build_model(config: BITConfig, weights_path: Path | None = None) -> tuple["torch.nn.Module", bool]:
-    """Construct AdaptFormer LEVIR-CD model."""
+    """Construct AdaptFormer LEVIR-CD model, caching after first load."""
+    global _CACHED_MODEL
+    if _CACHED_MODEL is not None:
+        logger.info("Using cached AdaptFormer LEVIR-CD model")
+        return _CACHED_MODEL, True
+
     from transformers import AutoModel
 
     logger.info("Loading SOTA AdaptFormer LEVIR-CD bitemporal model from HF: deepang/adaptformer-LEVIR-CD")
     model = AutoModel.from_pretrained("deepang/adaptformer-LEVIR-CD", trust_remote_code=True)
     model.eval()
+    _CACHED_MODEL = model
     return model, True
 
 

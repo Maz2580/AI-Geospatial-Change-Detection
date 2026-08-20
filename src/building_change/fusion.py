@@ -110,13 +110,19 @@ def fuse_candidates(candidate_inputs: dict[str, dict[str, Any]], *, merge_distan
         if left_root != right_root:
             parents[right_root] = left_root
 
+    # Use STRtree spatial index for near O(n log n) instead of O(n²)
+    from shapely import STRtree
+    buffered = [r["metric_geometry"].buffer(merge_distance_m) for r in records]
+    tree = STRtree(buffered)
+
     for left in range(len(records)):
-        for right in range(left + 1, len(records)):
+        candidates_idx = tree.query(buffered[left], predicate="intersects")
+        for right in candidates_idx:
+            if right <= left:
+                continue
             if records[left]["source"] == records[right]["source"]:
                 continue
-            first, second = records[left]["metric_geometry"], records[right]["metric_geometry"]
-            if first.intersects(second) or first.distance(second) <= merge_distance_m:
-                join(left, right)
+            join(left, right)
 
     clusters: dict[int, list[dict[str, Any]]] = {}
     for index, record in enumerate(records):

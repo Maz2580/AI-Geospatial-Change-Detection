@@ -11,11 +11,17 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from rasterio.warp import transform_geom
 from shapely.geometry import mapping, shape
 from shapely.validation import make_valid
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
+
+
+def _to_metric(geom):
+    """Reproject a WGS84 Shapely geometry to EPSG:3857 (metres)."""
+    projected = transform_geom("EPSG:4326", "EPSG:3857", mapping(geom), precision=6)
+    return shape(projected)
 
 
 def smart_fuse_candidates(
@@ -72,11 +78,13 @@ def smart_fuse_candidates(
         best_local_match = None
         best_l_idx = -1
 
+        v_g_m = _to_metric(v_g)
         for l_idx, l_g, l_props in local_geoms:
-            if not v_g.intersects(l_g):
+            l_g_m = _to_metric(l_g)
+            if not v_g_m.intersects(l_g_m):
                 continue
-            inter = v_g.intersection(l_g).area
-            union = v_g.union(l_g).area
+            inter = v_g_m.intersection(l_g_m).area
+            union = v_g_m.union(l_g_m).area
             iou = inter / union if union > 0 else 0.0
 
             if iou > best_iou:

@@ -48,7 +48,7 @@ def evaluate_candidate_set(
 
     for c_idx, c_g in enumerate(filtered_geoms):
         best_iou = 0.0
-        best_gt_idx = -1
+        best_gt_idx: int | None = None
         for g_idx, g_g in enumerate(gt_geoms):
             if not c_g.intersects(g_g):
                 continue
@@ -59,7 +59,7 @@ def evaluate_candidate_set(
                 best_iou = iou
                 best_gt_idx = g_idx
 
-        if best_iou >= min_iou and best_gt_idx >= 0:
+        if best_iou >= min_iou and best_gt_idx is not None:
             matched_gt.add(best_gt_idx)
             matched_cand.add(c_idx)
             ious.append(best_iou)
@@ -106,10 +106,10 @@ def calibrate_pipeline(
     logger.info("Calibrating pipeline against %d Ground Truth building footprints", len(gt_geoms))
     logger.info("Evaluating candidate pool of %d detections", len(candidates))
 
-    # Grid Search Parameters
-    area_grid = [40.0, 50.0, 60.0, 70.0]
-    rect_grid = [0.65, 0.70, 0.75, 0.80]
-    iou_grid = [0.10, 0.15, 0.20]
+    # Grid Search Parameters — wide enough to generalise across AOIs
+    area_grid = [30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
+    rect_grid = [0.55, 0.60, 0.65, 0.68, 0.70, 0.72, 0.75, 0.80]
+    iou_grid = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30]
 
     best_score = -1.0
     best_params = {}
